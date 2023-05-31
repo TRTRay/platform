@@ -1,9 +1,8 @@
 import json
 import time
 
-from flask import Flask, Blueprint, request
-from backend.mqttServer import topic, device_list
-from backend.mqttServer import client
+from flask import Blueprint, request
+from backend.mqttServer import client, topic, device_list
 
 devices_bp = Blueprint('devices', __name__)
 
@@ -25,7 +24,7 @@ def device_ctl():
         return json.dumps({'list': device_list})
 
     # POST请求，更改设备参数或者重启
-    # topic = '/broker/{type}/{deviceId}/{operation}, payload = {param} or None
+    # topic = '/broker/{operation}/{deviceId}, payload = {param} or None
     else:
         temp = json.loads(request.data)
         # 这一步查找可以由前端来完成

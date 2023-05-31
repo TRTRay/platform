@@ -14,13 +14,16 @@ keep_alive = 3600
 
 # 存储设备信息
 # device_list = []
-# for test
+# just for test
 device_list = [
-    {'deviceId': 'Acoustic1', 'type': 'Acoustic', 'stat': 'working', 'param': 48000},
-    {'deviceId': 'Acoustic8', 'type': 'Acoustic', 'stat': 'working', 'param': 48000},
-    {'deviceId': 'Wifi2', 'type': 'WiFi', 'stat': 'working', 'param': 48000},
-    {'deviceId': 'Wifi9', 'type': 'WiFi', 'stat': 'working', 'param': 48000}
+    {'deviceId': 'Acoustic1', 'type': 'Acoustic', 'stat': 'working', 'param': 48000, 'position': None},
+    {'deviceId': 'Acoustic8', 'type': 'Acoustic', 'stat': 'working', 'param': 48000, 'position': None},
+    {'deviceId': 'Wifi2', 'type': 'WiFi', 'stat': 'working', 'param': 48000, 'position': None},
+    {'deviceId': 'Wifi9', 'type': 'WiFi', 'stat': 'working', 'param': 48000, 'position': None}
 ]
+
+data_for_show = []
+data_slice = []
 
 
 # 成功和服务器建立连接时（收到CONNACK）进行回调
@@ -41,9 +44,14 @@ def __on_message(client, userdata, msg):
         # 对设备信息的预想是json格式返回的一系列信息
         deviceInform = json.loads(msg.payload)
         device_list.append(deviceInform)
-        # print('list append')
-        # print(device_list)
-        # pass
+    # elif msg.topic == '/client/showdata/#':
+    #     # 存在list里，假设前端的刷新率是1Hz
+    #     if len(data_slice) != 8:
+    #         data_slice.append(msg.payload)
+    #     else:
+    #         data_for_show.append(data_slice)
+    #         data_slice.clear()
+    #     pass
 
 
 # 断开连接

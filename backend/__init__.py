@@ -10,11 +10,13 @@ from backend.blueprints.datas import datas_bp
 def register_blueprint(app):
     app.register_blueprint(devices_bp)
     app.register_blueprint(map_bp)
+    app.register_blueprint(datas_bp)
 
 
 def create_app():
     app = Flask('platform')
     register_blueprint(app)
+
     return app
 
 
