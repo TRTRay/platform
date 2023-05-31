@@ -13,7 +13,14 @@ broker_port = 1883
 keep_alive = 3600
 
 # 存储设备信息
-device_list = []
+# device_list = []
+# for test
+device_list = [
+    {'deviceId': 'Acoustic1', 'type': 'Acoustic', 'stat': 'working', 'param': 48000},
+    {'deviceId': 'Acoustic8', 'type': 'Acoustic', 'stat': 'working', 'param': 48000},
+    {'deviceId': 'Wifi2', 'type': 'WiFi', 'stat': 'working', 'param': 48000},
+    {'deviceId': 'Wifi9', 'type': 'WiFi', 'stat': 'working', 'param': 48000}
+]
 
 
 # 成功和服务器建立连接时（收到CONNACK）进行回调
