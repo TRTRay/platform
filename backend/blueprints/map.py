@@ -1,7 +1,8 @@
 import json
 
 from flask import Blueprint, request
-from backend.mqttServer import client, topic, device_list
+from backend.mqttServer import client, device_list
+from backend.config import *
 
 map_bp = Blueprint('map', __name__)
 
@@ -24,7 +25,7 @@ def map_ctrl():
                 deviceInform = device
                 break
 
-        pub_topic = topic + '/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/' + temp['operation']
+        pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/' + temp['operation']
         client.publish(pub_topic, payload=temp['position'])
         # 做一个假的response
         deviceInform['position'] = temp['position']

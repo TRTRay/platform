@@ -2,7 +2,8 @@ import json
 import time
 
 from flask import Blueprint, request
-from backend.mqttServer import client, topic, device_list
+from backend.mqttServer import client, device_list
+from backend.config import *
 
 devices_bp = Blueprint('devices', __name__)
 
@@ -10,21 +11,19 @@ devices_bp = Blueprint('devices', __name__)
 @devices_bp.route('/api/devices', methods=['GET', 'POST'])
 def device_ctl():
     # GET请求，获取设备列表
-    # topic = '/broker/request/deviceInform', payload = ''
+    # pub_topic = '/broker/request/deviceInform', payload = ''
     if request.method == 'GET':
         # 先清空设备列表
         device_list.clear()
         # broker发布特殊主题的报文，由端设备做出回应，系统根据回应制作设备列表
-        client.publish(topic + '/request/deviceInform', payload='')
+        client.publish('/broker/request/deviceInform', payload='')
         # 端设备给予回应，回调函数将设备信息处理好推进device_list中
         # 经测试，20个设备，1s绰绰有余
         time.sleep(1)
-        # print('list fetch')
-        # print(device_list)
         return json.dumps({'list': device_list})
 
     # POST请求，更改设备参数或者重启
-    # topic = '/broker/{operation}/{deviceId}, payload = {param} or None
+    # pub_topic = '/broker/{operation}/{deviceId}, payload = {param} or None
     else:
         temp = json.loads(request.data)
         # 这一步查找可以由前端来完成
@@ -34,7 +33,7 @@ def device_ctl():
                 deviceInform = device
                 break
 
-        pub_topic = topic + '/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/' + temp['operation']
+        pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/' + temp['operation']
         client.publish(pub_topic, payload=temp['param'])
         # 发送出去后自动刷新设备列表，重启的设备会断连，更改参数的设备会回应当前的工作参数，这样就不用进行错误处理
         # 做一个假的response

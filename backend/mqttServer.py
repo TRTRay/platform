@@ -2,28 +2,8 @@ import json
 import time
 
 from paho.mqtt import client as mqtt
-
-
-topic = '/broker'
-sub_topic = '/client/#'
-
-# mqtt服务器地址、端口、窗口期
-broker_ip = '8.130.124.186'
-broker_port = 1883
-keep_alive = 3600
-
-# 存储设备信息
-# device_list = []
-# just for test
-device_list = [
-    {'deviceId': 'Acoustic1', 'devType': 'Acoustic', 'stat': 'working', 'param': 48000, 'position': None},
-    {'deviceId': 'Acoustic8', 'devType': 'Acoustic', 'stat': 'working', 'param': 48000, 'position': None},
-    {'deviceId': 'Wifi2', 'devType': 'WiFi', 'stat': 'working', 'param': 48000, 'position': None},
-    {'deviceId': 'Wifi9', 'devType': 'WiFi', 'stat': 'working', 'param': 48000, 'position': None}
-]
-
-data_for_show = []
-data_slice = []
+from backend.config import *
+from backend.utils.resMessage import *
 
 
 # 成功和服务器建立连接时（收到CONNACK）进行回调
@@ -32,26 +12,13 @@ def __on_connect(client, userdata, flags, rc):
         print("Connected to MQTT successfully!")
     else:
         print("Failed to connect, return code :{0}".format(rc))
-    # 可以添加一个订阅的调用，表示如果客户端和服务器断连，在重连后可以恢复
 
 
 # 在收到服务器发布的消息时（收到PUBLISH）进行回调
 def __on_message(client, userdata, msg):
     # 接收到消息后根据主题类型进行分类处理
-    print("Received message, topic:" + msg.topic + " payload:" + str(msg.payload))
-    # '/client/response/deviceInform'   端设备回应的设备信息
-    if msg.topic == '/client/respond/deviceInform':
-        # 对设备信息的预想是json格式返回的一系列信息
-        deviceInform = json.loads(msg.payload)
-        device_list.append(deviceInform)
-    # elif msg.topic == '/client/showdata/#':
-    #     # 存在list里，假设前端的刷新率是1Hz
-    #     if len(data_slice) != 8:
-    #         data_slice.append(msg.payload)
-    #     else:
-    #         data_for_show.append(data_slice)
-    #         data_slice.clear()
-    #     pass
+    # print("Received message, topic:" + msg.topic + " payload:" + str(msg.payload))
+    topic_case.get(msg.topic, res_default)(client, userdata, msg)
 
 
 # 断开连接
@@ -64,23 +31,24 @@ def __on_subscribe(client, userdata, mid, granted_qos):
     print('New subscribe!')
 
 
-def mqtt_connect(broker_ip, broker_port, keep_alive):
+def mqtt_connect(ip, port, hold_for):
     # 创建客户端实例
-    client = mqtt.Client()
-    client.on_connect = __on_connect
-    client.on_disconnect = __on_disconnect
-    client.on_message = __on_message
-    client.on_subscribe = __on_subscribe
+    mqtt_client = mqtt.Client()
+    mqtt_client.on_connect = __on_connect
+    mqtt_client.on_disconnect = __on_disconnect
+    mqtt_client.on_message = __on_message
+    mqtt_client.on_subscribe = __on_subscribe
 
     # 连接MQTT服务器，IP地址，端口号，窗口期
-    client.connect(broker_ip, broker_port, keep_alive)
+    mqtt_client.connect(ip, port, hold_for)
+    return mqtt_client
 
-    return client
+
+# 开启网络循环
+def run_mqtt_service(mqtt_client):
+    mqtt_client.subscribe('/client/#')
+    mqtt_client.loop_forever()
 
 
+# 返回连接好的客户端实例
 client = mqtt_connect(broker_ip, broker_port, keep_alive)
-
-
-def run_mqtt_service(client):
-    client.subscribe(sub_topic)
-    client.loop_forever()
