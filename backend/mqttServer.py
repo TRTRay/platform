@@ -16,10 +16,10 @@ keep_alive = 3600
 # device_list = []
 # just for test
 device_list = [
-    {'deviceId': 'Acoustic1', 'type': 'Acoustic', 'stat': 'working', 'param': 48000, 'position': None},
-    {'deviceId': 'Acoustic8', 'type': 'Acoustic', 'stat': 'working', 'param': 48000, 'position': None},
-    {'deviceId': 'Wifi2', 'type': 'WiFi', 'stat': 'working', 'param': 48000, 'position': None},
-    {'deviceId': 'Wifi9', 'type': 'WiFi', 'stat': 'working', 'param': 48000, 'position': None}
+    {'deviceId': 'Acoustic1', 'devType': 'Acoustic', 'stat': 'working', 'param': 48000, 'position': None},
+    {'deviceId': 'Acoustic8', 'devType': 'Acoustic', 'stat': 'working', 'param': 48000, 'position': None},
+    {'deviceId': 'Wifi2', 'devType': 'WiFi', 'stat': 'working', 'param': 48000, 'position': None},
+    {'deviceId': 'Wifi9', 'devType': 'WiFi', 'stat': 'working', 'param': 48000, 'position': None}
 ]
 
 data_for_show = []

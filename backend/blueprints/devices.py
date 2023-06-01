@@ -34,7 +34,7 @@ def device_ctl():
                 deviceInform = device
                 break
 
-        pub_topic = topic + '/' + deviceInform['type'] + '/' + deviceInform['deviceId'] + '/' + temp['operation']
+        pub_topic = topic + '/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/' + temp['operation']
         client.publish(pub_topic, payload=temp['param'])
         # 发送出去后自动刷新设备列表，重启的设备会断连，更改参数的设备会回应当前的工作参数，这样就不用进行错误处理
         # 做一个假的response

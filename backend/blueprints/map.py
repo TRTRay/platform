@@ -14,7 +14,7 @@ def map_ctrl():
     if request.method == 'GET':
         pass
     # 添加或删除设备
-    # topic = '/broker/{operation}/{type}/{deviceId}, payload = {position}
+    # topic = '/broker/{operation}/{devType}/{deviceId}, payload = {position}
     else:
         temp = json.loads(request.data)
         # 这一步查找可以由前端来完成
@@ -24,7 +24,7 @@ def map_ctrl():
                 deviceInform = device
                 break
 
-        pub_topic = topic + '/' + deviceInform['type'] + '/' + deviceInform['deviceId'] + '/' + temp['operation']
+        pub_topic = topic + '/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/' + temp['operation']
         client.publish(pub_topic, payload=temp['position'])
         # 做一个假的response
         deviceInform['position'] = temp['position']
