@@ -26,7 +26,7 @@ def map_ctrl():
                 break
 
         pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/' + temp['operation']
-        client.publish(pub_topic, payload=temp['position'])
+        client.publish(pub_topic, payload=json.dumps({'position': temp['position']}))
         # 做一个假的response
         deviceInform['position'] = temp['position']
         return json.dumps(deviceInform)

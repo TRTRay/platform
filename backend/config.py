@@ -6,7 +6,7 @@ test_param = {
 }
 
 # mqtt服务器地址、端口、窗口期
-broker_ip = '8.130.124.186'
+broker_ip = '182.92.152.209'
 broker_port = 1883
 keep_alive = 3600
 

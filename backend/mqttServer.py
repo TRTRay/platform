@@ -17,7 +17,7 @@ def __on_connect(client, userdata, flags, rc):
 # 在收到服务器发布的消息时（收到PUBLISH）进行回调
 def __on_message(client, userdata, msg):
     # 接收到消息后根据主题类型进行分类处理
-    # print("Received message, topic:" + msg.topic + " payload:" + str(msg.payload))
+    print("Received message, topic:" + msg.topic)
     topic_case.get(msg.topic, res_default)(client, userdata, msg)
 
 

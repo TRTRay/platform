@@ -24,10 +24,12 @@ def res_showdata(client, userdata, msg):
 
 # 无匹配的topic
 def res_default(client, userdata, msg):
+    print(json.loads(msg.payload)['message'])
     pass
 
 
 topic_case = {
     '/client/respond/deviceInform': res_inform,
     '/client/showdata/': res_showdata
+
 }
