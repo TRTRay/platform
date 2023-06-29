@@ -1,4 +1,5 @@
 # 用于生成json response的工具类
+import json
 
 # 定义返回状态的枚举
 response_status_enum = {
@@ -10,3 +11,14 @@ response_status_enum = {
 
     # 自定义的错误返回
 }
+
+
+def req_success(stat, data: list):
+    res = response_status_enum[stat]
+    jsonResult = json.dumps({
+        'status': res['status'],
+        'message': res['message'],
+        'success': res['success'],
+        'data': data
+    })
+    return jsonResult

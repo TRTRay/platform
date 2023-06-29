@@ -3,6 +3,8 @@ import json
 from flask import Blueprint, request
 from backend.mqttServer import client, device_list
 from backend.config import *
+from backend.utils.utils import *
+from backend.utils.jsonResult import *
 
 map_bp = Blueprint('map', __name__)
 
@@ -17,16 +19,12 @@ def map_ctrl():
     # 添加或删除设备
     # topic = '/broker/{operation}/{devType}/{deviceId}, payload = {position}
     else:
-        temp = json.loads(request.data)
-        # 这一步查找可以由前端来完成
-        deviceInform = []
-        for device in device_list:
-            if device['deviceId'] == temp['deviceId']:
-                deviceInform = device
-                break
+        req_params = json.loads(request.data)
+        [result, index] = find_device(req_params['deviceId'])
+        deviceInform = device_list[index]
 
-        pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/' + temp['operation']
-        client.publish(pub_topic, payload=json.dumps({'position': temp['position']}))
+        pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/' + req_params['operation']
+        client.publish(pub_topic, payload=json.dumps({'position': req_params['position']}))
         # 做一个假的response
-        deviceInform['position'] = temp['position']
-        return json.dumps(deviceInform)
+        deviceInform['position'] = req_params['position']
+        return req_success('SUCCESS', deviceInform)

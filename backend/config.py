@@ -13,12 +13,12 @@ keep_alive = 3600
 # 用作存储的全局变量
 # 存储设备信息
 device_list = []
-if test_mode:
-    device_list = [
-        {'deviceId': 'Acoustic1', 'devType': 'Acoustic', 'stat': 'working', 'param': 48000, 'position': None},
-        {'deviceId': 'Acoustic8', 'devType': 'Acoustic', 'stat': 'working', 'param': 48000, 'position': None},
-        {'deviceId': 'Wifi2', 'devType': 'WiFi', 'stat': 'working', 'param': 48000, 'position': None},
-        {'deviceId': 'Wifi9', 'devType': 'WiFi', 'stat': 'working', 'param': 48000, 'position': None}
-    ]
+# if test_mode:
+#     device_list = [
+#         {'deviceId': 'Acoustic1', 'devType': 'Acoustic', 'stat': 'working', 'param': 48000, 'position': None},
+#         {'deviceId': 'Acoustic8', 'devType': 'Acoustic', 'stat': 'working', 'param': 48000, 'position': None},
+#         {'deviceId': 'Wifi2', 'devType': 'WiFi', 'stat': 'working', 'param': 48000, 'position': None},
+#         {'deviceId': 'Wifi9', 'devType': 'WiFi', 'stat': 'working', 'param': 48000, 'position': None}
+#     ]
 
 data_slice = []
