@@ -23,8 +23,10 @@ def map_ctrl():
         [result, index] = find_device(req_params['deviceId'])
         deviceInform = device_list[index]
 
+        # 预留操作，端设备暂时不需要知道自己的位置
         pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/' + req_params['operation']
         client.publish(pub_topic, payload=json.dumps({'position': req_params['position']}))
-        # 做一个假的response
+        # 更改设备位置
         deviceInform['position'] = req_params['position']
+        # 做一个假的response
         return req_success('SUCCESS', deviceInform)
