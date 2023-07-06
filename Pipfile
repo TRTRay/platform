@@ -8,6 +8,7 @@ flask = "*"
 python-dotenv = "*"
 flask-cors = "*"
 paho-mqtt = "*"
+numpy = "*"
 
 [dev-packages]
 

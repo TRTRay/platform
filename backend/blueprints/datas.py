@@ -11,8 +11,8 @@ datas_bp = Blueprint('datas', __name__)
 
 
 # 回显实时数据
-@datas_bp.route('/api/datas/start')
-def show_data():
+@datas_bp.route('/api/datas/start', methods=['GET'])
+def start_sample():
     # topic = '/broker/{devType}/{deviceId}/start, payload = None
     req_params = json.loads(request.data)
     [result, index] = find_device(req_params['deviceId'])
@@ -33,8 +33,8 @@ def show_data():
     return req_success('SUCCESS', inform)
 
 
-# @datas_bp.route('/api/datas/stop')
-# def show_data():
+# @datas_bp.route('/api/datas/stop', methods=['GET'])
+# def stop_sample():
 #     # topic = '/broker/{devType}/{deviceId}/stop, payload = None
 #     req_params = json.loads(request.data)
 #     [result, index] = find_device(req_params['deviceId'])
