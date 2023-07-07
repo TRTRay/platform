@@ -56,11 +56,12 @@ def res_showdata(client, userdata, msg):
     devId = topic_split[3]
     [result, index] = find_device(devId)
     deviceInform = device_list[index]
-    recorderChannels = deviceInform['params']['recorderChannals']
     data = np.fromstring(msg.payload, dtype=np.int16)
-    data = data.reshape(-1, recorderChannels).T
-    for dataframe in data:
-        data_slice.append(dataframe.tolist())
+    # recorderChannels = deviceInform['params']['recorderChannals']
+    # data = data.reshape(-1, recorderChannels).T
+    # for dataframe in data:
+    #     data_slice.append(dataframe.tolist())
+    data_slice.append(data.tolist())
 
 
 def res_stop(client, userdata, msg):

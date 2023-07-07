@@ -1,6 +1,7 @@
 import json
 import copy
 
+import numpy as np
 from flask import Blueprint, request
 from backend.mqttServer import client
 from backend.config import *
@@ -11,7 +12,7 @@ datas_bp = Blueprint('datas', __name__)
 
 
 # 回显实时数据
-@datas_bp.route('/api/datas/start', methods=['GET'])
+@datas_bp.route('/api/datas/start', methods=['GET', 'POST'])
 def start_sample():
     # topic = '/broker/{devType}/{deviceId}/start, payload = None
     req_params = json.loads(request.data)
@@ -31,7 +32,7 @@ def start_sample():
     return req_success('SUCCESS', '')
 
 
-@datas_bp.route('/api/datas/showdata', methods=['GET'])
+@datas_bp.route('/api/datas/showdata', methods=['GET', 'POST'])
 def show_data():
     req_params = json.loads(request.data)
     [result, index] = find_device(req_params['deviceId'])
@@ -41,13 +42,16 @@ def show_data():
     # 保留topic
     pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/showdata'
     # 从缓存中读取数据并清空
-    runtime_data = copy.copy(data_slice)
-    inform = {'runtime_data': runtime_data}
+    recorderChannels = deviceInform['params']['recorderChannals']
+    runtime_list = copy.copy(data_slice)
     data_slice.clear()
+    np_list = np.array(runtime_list)
+    runtime_data = np_list.reshape(-1, recorderChannels).T
+    inform = {'runtime_data': runtime_data.tolist()}
     return req_success('SUCCESS', inform)
 
 
-@datas_bp.route('/api/datas/stop', methods=['GET'])
+@datas_bp.route('/api/datas/stop', methods=['GET', 'POST'])
 def stop_sample():
     # topic = '/broker/{devType}/{deviceId}/stop, payload = None
     req_params = json.loads(request.data)

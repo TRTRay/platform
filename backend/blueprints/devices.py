@@ -19,6 +19,7 @@ def device_ctl():
         # # 先清空设备列表
         # device_list.clear()
         # broker发布特殊主题的报文，由端设备做出回应，系统根据回应制作设备列表
+        # 事实上不需要发送请求了
         load = json.dumps({
             'timestamp': get_timestamp(),
             'message': 'Broker request for device information',
