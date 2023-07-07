@@ -48,6 +48,7 @@ def res_start(client, userdata, msg):
     data = np.fromstring(msg.payload, dtype=np.int16)
     data.reshape(-1, recorderChannels)
     for dataframe in data:
+        # print(dataframe)
         data_slice.append(dataframe.tolist())
 
 

@@ -3,14 +3,14 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="3317bd05-fb03-4e22-8cd8-e1c352871301" name="Speaker8">
-        <fileTransfer rootFolder="/home/pi/Desktop" accessType="SFTP" host="182.92.152.209" port="22" sshConfigId="d0a09054-a568-4f6d-b50a-be8dd3531972" sshConfig="root@182.92.152.209:22 password">
+        <fileTransfer rootFolder="/home/pi/Desktop" accessType="SFTP" host="192.168.137.188" port="22" sshConfigId="d0a09054-a568-4f6d-b50a-be8dd3531972" sshConfig="pi@192.168.137.188:22 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
         </fileTransfer>
       </webServer>
       <webServer id="fb51ab1d-e126-466e-966b-fb8279d02e8b" name="Platform">
-        <fileTransfer rootFolder="/root" accessType="SFTP" host="182.92.152.209" port="22" sshConfigId="d0a09054-a568-4f6d-b50a-be8dd3531972" sshConfig="root@182.92.152.209:22 password">
+        <fileTransfer rootFolder="/home/admin" accessType="SFTP" host="182.92.152.209" port="22" sshConfigId="72ab3e44-50fd-4441-a435-63df48e11e15" sshConfig="root@182.92.152.209:22 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
