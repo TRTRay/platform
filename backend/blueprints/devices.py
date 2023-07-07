@@ -37,7 +37,7 @@ def device_ctl():
         # if flag_online:
         #     msg = 'Warning: There are no online devices!'
         #     return req_success('Warning', device_list, msg)
-        return req_success('SUCCESS', device_list)
+        return req_success('SUCCESS', {'list': device_list})
     # POST请求，更改设备参数或者重启
     # pub_topic = '/broker/{devType}/{deviceId}/update, payload = msg,{params}
     # pub_topic = '/broker/{devType}/{deviceId}/reboot, payload = msg

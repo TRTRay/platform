@@ -18,6 +18,8 @@ def start_sample():
     [result, index] = find_device(req_params['deviceId'])
     deviceInform = device_list[index]
 
+    # 每次调用都要清空缓存
+    data_slice.clear()
     pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/start'
     load = json.dumps({
         'timestamp': get_timestamp(),
@@ -25,26 +27,38 @@ def start_sample():
         'data': []
     })
     client.publish(pub_topic, payload=load)
-    # 发送报文通知端设备向服务器传输，如果端设备在一段时间内没有收到该publish就停止发送，停止发送的时候向服务器发一个特殊报文来清空数据队列(还没完成)
-    # 实际情况应该是：在这个页面下前端每秒请求一次数据，后端将队列中的数据取出，然后清空队列
+    # broker通过start和stop接口来控制设备采样与否，用showdata接口来获取数据
+    return req_success('SUCCESS', '')
+
+
+@datas_bp.route('/api/datas/showdata', methods=['GET'])
+def show_data():
+    req_params = json.loads(request.data)
+    [result, index] = find_device(req_params['deviceId'])
+    deviceInform = device_list[index]
+
+    # 实际上不需要设备知道前端读走了数据，设备只管发就行
+    # 保留topic
+    pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/showdata'
+    # 从缓存中读取数据并清空
     runtime_data = copy.copy(data_slice)
     inform = {'runtime_data': runtime_data}
     data_slice.clear()
     return req_success('SUCCESS', inform)
 
 
-# @datas_bp.route('/api/datas/stop', methods=['GET'])
-# def stop_sample():
-#     # topic = '/broker/{devType}/{deviceId}/stop, payload = None
-#     req_params = json.loads(request.data)
-#     [result, index] = find_device(req_params['deviceId'])
-#     deviceInform = device_list[index]
-#
-#     pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/stop'
-#     load = json.dumps({
-#         'timestamp': get_timestamp(),
-#         'message': 'Broker request for stop',
-#         'data': []
-#     })
-#     client.publish(pub_topic, payload=load)
-#     return req_success('SUCCESS', '')
+@datas_bp.route('/api/datas/stop', methods=['GET'])
+def stop_sample():
+    # topic = '/broker/{devType}/{deviceId}/stop, payload = None
+    req_params = json.loads(request.data)
+    [result, index] = find_device(req_params['deviceId'])
+    deviceInform = device_list[index]
+
+    pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/stop'
+    load = json.dumps({
+        'timestamp': get_timestamp(),
+        'message': 'Broker request for stop',
+        'data': []
+    })
+    client.publish(pub_topic, payload=load)
+    return req_success('SUCCESS', '')
