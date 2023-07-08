@@ -58,12 +58,18 @@ def res_showdata(client, userdata, msg):
     [result, index] = find_device(devId)
     deviceInform = device_list[index]
     data_key = deviceInform['deviceId'] + '_' + data_type
-    data = np.fromstring(msg.payload, dtype=np.int16)
+    # 对wav数据和csi数据分别做不同的处理
+    if data_type == 'wav':
+        data = np.fromstring(msg.payload, dtype=np.int16)
+    elif data_type == 'csi':
+        # csi用c语言publish过来，在格式转换上不如python流畅，以下是多次试验后的结果
+        pyload_to_str = msg.payload.decode('utf-8')[1:-1]
+        str_to_list = pyload_to_str.split(',')
+        data = np.array(str_to_list, dtype=np.float64)
     # 添加数据
     if data_key not in data_slice:
         data_slice[data_key] = []
     data_slice[data_key].extend(data.tolist())
-    # print(len(data_slice[data_key]))
 
     # recorderChannels = deviceInform['params']['recorderChannals']
     # data = data.reshape(-1, recorderChannels).T
