@@ -1,5 +1,6 @@
 import json
 import copy
+import math
 
 import numpy as np
 from flask import Blueprint, request
@@ -21,7 +22,10 @@ def start_sample():
     deviceInform = device_list[index]
 
     # 每次调用都要清空缓存
-    data_slice.clear()
+    # data_slice.clear()
+    data_key = deviceInform['deviceId'] + '_' + 'wav'
+    if data_key in data_slice:
+        data_slice[data_key].clear()
     pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/start'
     load = json.dumps({
         'timestamp': get_timestamp(),
@@ -44,10 +48,14 @@ def show_data():
     pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/showdata'
     # 从缓存中读取数据并清空
     recorderChannels = deviceInform['params']['recorderChannals']
-    runtime_list = copy.copy(data_slice)
-    data_slice.clear()
+    # wifi remain!!!!!!!!
+    data_key = deviceInform['deviceId'] + '_' + 'wav'
+    # 取出数据
+    runtime_list = copy.copy(data_slice[data_key])
+    data_slice[data_key].clear()
+    # 简单处理
     np_list = np.array(runtime_list)
-    runtime_data = np_list.reshape(-1, recorderChannels).T / 32767
+    runtime_data = np_list.reshape(-1, recorderChannels).T
     inform = {'runtime_data': runtime_data.tolist()}
     return req_success('SUCCESS', inform)
 

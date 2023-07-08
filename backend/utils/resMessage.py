@@ -51,17 +51,26 @@ def res_start(client, userdata, msg):
 
 def res_showdata(client, userdata, msg):
     # 把接收数据存在一个地方供前端取
-    # 现在仅支持单设备，还需要继续完善
     topic_split = msg.topic.split('/')
     devId = topic_split[3]
+    data_type = topic_split[5]
+    # 获取设备信息
     [result, index] = find_device(devId)
     deviceInform = device_list[index]
+    data_key = deviceInform['deviceId'] + '_' + data_type
     data = np.fromstring(msg.payload, dtype=np.int16)
+    # 添加数据
+    if data_key not in data_slice:
+        data_slice[data_key] = []
+    data_slice[data_key].extend(data.tolist())
+    # print(len(data_slice[data_key]))
+
     # recorderChannels = deviceInform['params']['recorderChannals']
     # data = data.reshape(-1, recorderChannels).T
     # for dataframe in data:
     #     data_slice.append(dataframe.tolist())
-    data_slice.append(data.tolist())
+    # 直接送进队列，等前端请求的时候再做切片
+    # data_slice.append(data.tolist())
 
 
 def res_stop(client, userdata, msg):
@@ -80,7 +89,7 @@ def res_default(client, userdata, msg):
         res_start(client, userdata, msg)
     if msg_topic.endswith('/stop'):
         res_stop(client, userdata, msg)
-    if msg_topic.endswith('/showdata'):
+    if msg_topic.endswith('/showdata/wav') or msg_topic.endswith('/showdata/csi') or msg_topic.endswith('/showdata/plcr'):
         res_showdata(client, userdata, msg)
 
 
