@@ -46,17 +46,29 @@ def show_data():
     # 实际上不需要设备知道前端读走了数据，设备只管发就行
     # 保留topic
     pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/showdata'
-    # 从缓存中读取数据并清空
     recorderChannels = deviceInform['params']['recorderChannals']
+    # 一秒25帧
+    seg_len = int(deviceInform['params']['sampleRate'] / 25)
     # wifi remain!!!!!!!!
     data_key = deviceInform['deviceId'] + '_' + 'wav'
+    run_data_len = math.floor(len(data_slice[data_key]) / seg_len / recorderChannels) * seg_len * recorderChannels
     # 取出数据
-    runtime_list = copy.copy(data_slice[data_key])
-    data_slice[data_key].clear()
+    # runtime_list = copy.copy(data_slice[data_key])
+    # data_slice[data_key].clear()
+    runtime_list = copy.copy(data_slice[data_key][0:run_data_len])
+    del data_slice[data_key][0:run_data_len]
     # 简单处理
-    np_list = np.array(runtime_list)
+    # np_list = np.array(runtime_list)
+    # runtime_data = np_list.reshape(-1, recorderChannels).T
+    np_list = np.abs(np.array(runtime_list))
     runtime_data = np_list.reshape(-1, recorderChannels).T
-    inform = {'runtime_data': runtime_data.tolist()}
+    result_list = []
+    for channel in runtime_data:
+        re_channel = channel.reshape(-1, seg_len)
+        result_list.append(np.round(np.mean(np.abs(re_channel), axis=1)))
+    # inform = {'runtime_data': runtime_data.tolist()}
+    # return req_success('SUCCESS', inform)
+    inform = {'runtime_data': np.array(result_list).tolist()}
     return req_success('SUCCESS', inform)
 
 
