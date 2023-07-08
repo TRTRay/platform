@@ -15,6 +15,7 @@ datas_bp = Blueprint('datas', __name__)
 @datas_bp.route('/api/datas/start', methods=['GET', 'POST'])
 def start_sample():
     # topic = '/broker/{devType}/{deviceId}/start, payload = None
+    print(request.data)
     req_params = json.loads(request.data)
     [result, index] = find_device(req_params['deviceId'])
     deviceInform = device_list[index]
@@ -46,7 +47,7 @@ def show_data():
     runtime_list = copy.copy(data_slice)
     data_slice.clear()
     np_list = np.array(runtime_list)
-    runtime_data = np_list.reshape(-1, recorderChannels).T
+    runtime_data = np_list.reshape(-1, recorderChannels).T / 32767
     inform = {'runtime_data': runtime_data.tolist()}
     return req_success('SUCCESS', inform)
 
@@ -54,6 +55,7 @@ def show_data():
 @datas_bp.route('/api/datas/stop', methods=['GET', 'POST'])
 def stop_sample():
     # topic = '/broker/{devType}/{deviceId}/stop, payload = None
+    print(request.data)
     req_params = json.loads(request.data)
     [result, index] = find_device(req_params['deviceId'])
     deviceInform = device_list[index]
