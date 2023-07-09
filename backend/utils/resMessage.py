@@ -1,5 +1,6 @@
 # on_message中对各个topic的响应函数
 import json
+import math
 import numpy as np
 from backend.config import *
 from backend.utils.utils import *
@@ -10,11 +11,24 @@ def res_online(client, userdata, msg):
     # 收到单个设备传来的上线信息，更新列表
     load_data = json.loads(msg.payload)['data']
     [result, index] = find_device(load_data['deviceId'])
+    deviceInform = device_list[index]
     if result:
-        device_list[index]['stat'] = "on"
+        deviceInform['stat'] = "on"
     else:
         device_list.append(load_data)
     print(device_list)
+    # 创建数据缓存
+    if deviceInform['devType'] == 'wav':
+        data_key = deviceInform['deviceId'] + '_' + 'wav'
+        if data_key not in data_slice:
+            data_slice[data_key] = []
+    elif deviceInform['devType'] == 'WiFi-Rx':
+        data_key1 = deviceInform['deviceId'] + '_' + 'csi'
+        data_key2 = deviceInform['deviceId'] + '_' + 'plcr'
+        if data_key1 not in data_slice:
+            data_slice[data_key1] = []
+        if data_key2 not in data_slice:
+            data_slice[data_key2] = []
 
 
 # topic:'/client/{deviceType}/{deviceId}/offline
@@ -54,6 +68,7 @@ def res_showdata(client, userdata, msg):
     topic_split = msg.topic.split('/')
     devId = topic_split[3]
     data_type = topic_split[5]
+    data = np.array([])
     # 获取设备信息
     [result, index] = find_device(devId)
     deviceInform = device_list[index]
@@ -65,18 +80,20 @@ def res_showdata(client, userdata, msg):
         # csi用c语言publish过来，在格式转换上不如python流畅，以下是多次试验后的结果
         pyload_to_str = msg.payload.decode('utf-8')[1:-1]
         str_to_list = pyload_to_str.split(',')
-        data = np.array(str_to_list, dtype=np.float64)
+        data_total = np.array(str_to_list, dtype=np.float64)
+        # 简单处理，取第一个子载波
+        # 最后一个包只有一个数据，单独处理
+        if data_total.size != 180:
+            return
+        data = np.array([math.sqrt(data_total[0] * data_total[0] + data_total[1] * data_total[1])])
+    elif data_type == 'plcr':
+        pass
+    # 创建数据缓存队列
+    # 转移指设备上线即创建缓存队列
+    # if data_key not in data_slice:
+    #     data_slice[data_key] = []
     # 添加数据
-    if data_key not in data_slice:
-        data_slice[data_key] = []
     data_slice[data_key].extend(data.tolist())
-
-    # recorderChannels = deviceInform['params']['recorderChannals']
-    # data = data.reshape(-1, recorderChannels).T
-    # for dataframe in data:
-    #     data_slice.append(dataframe.tolist())
-    # 直接送进队列，等前端请求的时候再做切片
-    # data_slice.append(data.tolist())
 
 
 def res_stop(client, userdata, msg):
@@ -97,6 +114,10 @@ def res_default(client, userdata, msg):
         res_stop(client, userdata, msg)
     if msg_topic.endswith('/showdata/wav') or msg_topic.endswith('/showdata/csi') or msg_topic.endswith('/showdata/plcr'):
         res_showdata(client, userdata, msg)
+
+    # msg_payload = json.loads(msg.payload)
+    # if 'message' in msg_payload:
+    #     print('message:{0}'.format(msg_payload['message']))
 
 
 topic_case = {

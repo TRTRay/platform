@@ -16,13 +16,14 @@ datas_bp = Blueprint('datas', __name__)
 @datas_bp.route('/api/datas/start', methods=['GET', 'POST'])
 def start_sample():
     # topic = '/broker/{devType}/{deviceId}/start, payload = None
-    print(request.data)
     req_params = json.loads(request.data)
+    # remained: 逻辑漏洞，检查一下result
     [result, index] = find_device(req_params['deviceId'])
     deviceInform = device_list[index]
 
     # 每次调用都要清空缓存
     # data_slice.clear()
+    # remained : 根据类型清空列表
     data_key = deviceInform['deviceId'] + '_' + 'wav'
     if data_key in data_slice:
         data_slice[data_key].clear()

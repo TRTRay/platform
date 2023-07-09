@@ -9,7 +9,7 @@ test_param = {
 # cloud server
 # broker_ip = '182.92.152.209'
 # localhost
-# broker_ip = '127.0.0.1'
+# broker_ip = '192.168.137.1'
 # localhost with hardware link
 broker_ip = '192.168.0.190'
 
