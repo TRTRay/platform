@@ -57,15 +57,23 @@ def device_ctl():
         #     msg = 'Refuse: Device is working, please stop sampling first!'
         #     return req_bad_request('Unauthorized', msg)
         if operation == 'update':
+            params = req_params['params']
+            if deviceInform['devType'] == 'WiFi-Tx' or deviceInform['devType'] == 'WiFi-Rx':
+                if params['rx_model'] == ['csi', 'plcr']:
+                    params['rx_model'] = 'a'
+                if params['rx_model'] == ['plcr']:
+                    params['rx_model'] = 'p'
+                if params['rx_model'] == ['csi']:
+                    params['rx_model'] = 'c'
             load = json.dumps({
                 'timestamp': get_timestamp(),
                 'message': 'Broker request for changing device params',
-                'data': req_params['params']
+                'data': params
             })
             client.publish(pub_topic, payload=load)
             # next version:这部分可以删掉，设备重新上线后会自动更新参数
             # 本地更改，还有和设备之间的通信
-            deviceInform['params'] = req_params['params']
+            deviceInform['params'] = params
         else:
             load = json.dumps({
                 'timestamp': get_timestamp(),

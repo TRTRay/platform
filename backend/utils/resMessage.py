@@ -11,25 +11,35 @@ def res_online(client, userdata, msg):
     # 收到单个设备传来的上线信息，更新列表
     load_data = json.loads(msg.payload)['data']
     [result, index] = find_device(load_data['deviceId'])
-    deviceInform = device_list[index]
     if result:
-        deviceInform['stat'] = "on"
+        device_list[index]['stat'] = "on"
     else:
+        if load_data['devType'] == 'WiFi-Tx' or load_data['devType'] == 'WiFi-Rx':
+            if load_data['params']['rx_model'] == 'a':
+                load_data['params']['rx_model'] = ['csi', 'plcr']
+            if load_data['params']['rx_model'] == 'p':
+                load_data['params']['rx_model'] = ['plcr']
+            if load_data['params']['rx_model'] == 'c':
+                load_data['params']['rx_model'] = ['csi']
         device_list.append(load_data)
     print(device_list)
+    deviceInform = device_list[index]
     # 创建数据缓存
-    if deviceInform['devType'] == 'wav':
-        data_key = deviceInform['deviceId'] + '_' + 'wav'
+    if load_data['devType'] == 'Speaker':
+        data_key = load_data['deviceId'] + '_' + 'wav'
         if data_key not in data_slice:
-            data_slice[data_key] = []
-    elif deviceInform['devType'] == 'WiFi-Rx':
-        data_key1 = deviceInform['deviceId'] + '_' + 'csi'
-        data_key2 = deviceInform['deviceId'] + '_' + 'plcr'
+            data_slice[data_key] = [1]
+            data_slice[data_key].clear()
+    elif load_data['devType'] == 'WiFi-Rx':
+        data_key1 = load_data['deviceId'] + '_' + 'csi'
+        data_key2 = load_data['deviceId'] + '_' + 'plcr'
         if data_key1 not in data_slice:
-            data_slice[data_key1] = []
+            data_slice[data_key1] = [1]
+            data_slice[data_key1].clear()
         if data_key2 not in data_slice:
-            data_slice[data_key2] = []
-
+            data_slice[data_key2] = [1]
+            data_slice[data_key2].clear()
+    print(data_slice)
 
 # topic:'/client/{deviceType}/{deviceId}/offline
 def res_offline(client, userdata, msg):
@@ -82,12 +92,15 @@ def res_showdata(client, userdata, msg):
         str_to_list = pyload_to_str.split(',')
         data_total = np.array(str_to_list, dtype=np.float64)
         # 简单处理，取第一个子载波
-        # 最后一个包只有一个数据，单独处理
-        if data_total.size != 180:
-            return
+        # # 最后一个包只有一个数据，单独处理
+        # if data_total.size != 180:
+        #     return
         data = np.array([math.sqrt(data_total[0] * data_total[0] + data_total[1] * data_total[1])])
     elif data_type == 'plcr':
-        pass
+        pyload_to_str = msg.payload.decode('utf-8')[1:-1]
+        str_to_list = pyload_to_str.split(',')
+        data = np.array(str_to_list, dtype=np.float64)
+        print(data)
     # 创建数据缓存队列
     # 转移指设备上线即创建缓存队列
     # if data_key not in data_slice:
@@ -99,9 +112,10 @@ def res_showdata(client, userdata, msg):
 def res_stop(client, userdata, msg):
     topic_split = msg.topic.split('/')
     devId = topic_split[3]
+    # 目前只有wav
     [result, index] = find_device(devId)
     device_list[index]['stat'] = 'on'
-    data_slice.clear()
+    data_slice[devId + '_wav'].clear()
 
 
 # 无匹配的topic
