@@ -9,9 +9,9 @@ test_param = {
 # cloud server
 # broker_ip = '182.92.152.209'
 # localhost
-# broker_ip = '192.168.137.1'
+broker_ip = '192.168.137.1'
 # localhost with hardware link
-broker_ip = '192.168.0.190'
+# broker_ip = '192.168.0.190'
 
 broker_port = 1883
 keep_alive = 3600

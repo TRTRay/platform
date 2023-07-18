@@ -10,6 +10,16 @@ from backend.utils.utils import *
 def res_online(client, userdata, msg):
     # 收到单个设备传来的上线信息，更新列表
     load_data = json.loads(msg.payload)['data']
+
+    # # 收到报文，存在message就打印一下
+    # if 'message' in load_data:
+    #     print('message: {0}'.format(load_data['message']))
+
+    msg_topic = msg.topic
+    # wifi设备在尝试完成初始化
+    if load_data['stat'] == 'off':
+        print('Device {0} is trying to setup.'.format(load_data['deviceId']))
+        return
     [result, index] = find_device(load_data['deviceId'])
     if result:
         device_list[index]['stat'] = "on"
@@ -28,6 +38,7 @@ def res_online(client, userdata, msg):
     if load_data['devType'] == 'Speaker':
         data_key = load_data['deviceId'] + '_' + 'wav'
         if data_key not in data_slice:
+            # 这样操作是因为直接创建空list加不进data_slice
             data_slice[data_key] = [1]
             data_slice[data_key].clear()
     elif load_data['devType'] == 'WiFi-Rx':
@@ -39,12 +50,16 @@ def res_online(client, userdata, msg):
         if data_key2 not in data_slice:
             data_slice[data_key2] = [1]
             data_slice[data_key2].clear()
-    print(data_slice)
+
 
 # topic:'/client/{deviceType}/{deviceId}/offline
 def res_offline(client, userdata, msg):
     # 收到单个设备的下线信息，更新设备列表
     load_data = json.loads(msg.payload)['data']
+    # # 收到报文，存在message就打印一下
+    # if 'message' in load_data:
+    #     print('message: {0}'.format(load_data['message']))
+    msg_topic = msg.topic
     [result, index] = find_device(load_data['deviceId'])
     device_list[index]['stat'] = 'off'
 
@@ -114,13 +129,22 @@ def res_stop(client, userdata, msg):
     devId = topic_split[3]
     # 目前只有wav
     [result, index] = find_device(devId)
-    device_list[index]['stat'] = 'on'
-    data_slice[devId + '_wav'].clear()
+    deviceInform = device_list[index]
+    deviceInform['stat'] = 'on'
+    if deviceInform['devType'] == 'Speaker':
+        data_slice[devId + '_wav'].clear()
+    elif deviceInform['devType'] == 'WiFi-Rx':
+        data_slice[devId + '_plcr'].clear()
+        data_slice[devId + '_csi'].clear()
 
 
 # 无匹配的topic
 def res_default(client, userdata, msg):
     print("default res_function!")
+    load_data = json.loads(msg.payload)
+    # # 收到报文，存在message就打印一下
+    # if 'message' in load_data:
+    #     print('message: {0}'.format(load_data['message']))
     msg_topic = msg.topic
     if msg_topic.endswith('/start'):
         res_start(client, userdata, msg)
