@@ -1,7 +1,8 @@
 from flask import Flask
 from threading import Thread
 
-from backend.mqttServer import run_mqtt_service, client
+from backend.mqttServer import MqttServer
+from backend.config import *
 from backend.blueprints.devices import devices_bp
 from backend.blueprints.map import map_bp
 from backend.blueprints.datas import datas_bp
@@ -16,9 +17,8 @@ def register_blueprint(app):
 def create_app():
     app = Flask('platform')
     register_blueprint(app)
-
     return app
 
 
-mqtt_server = Thread(name='mqtt_server', target=run_mqtt_service, args=(client,))
-mqtt_server.start()
+mqtt_server_thread = Thread(name='mqtt_server', target=MqttServer.run_mqtt_service, args=(broker_ip, broker_port, keep_alive))
+mqtt_server_thread.start()

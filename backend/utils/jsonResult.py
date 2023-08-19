@@ -10,7 +10,8 @@ response_status_enum = {
     # 50x   错误返回
     'FAILED': {'code': 500, 'message': 'fail!', 'success': False},
     # 自定义的错误返回
-    'Warning': {'code': 208, 'message': 'warning', 'success': True}
+    'Warning': {'code': 208, 'message': 'warning', 'success': True},
+    'Timeout': {'code': 209, 'message': 'request time out', 'success': False}
 }
 
 
@@ -25,6 +26,15 @@ def req_success(stat, data):
     return jsonResult
 
 
+def req_failed(stat, data):
+    res = response_status_enum[stat]
+    jsonResult = json.dumps({
+        'code': res['code'],
+        'msg': res['message'],
+        'success': res['success'],
+        'data': data
+    })
+    pass
 # next version:请求成功，可能会有warning信息
 # def req_success(stat, data, msg):
 #     res = response_status_enum[stat]
