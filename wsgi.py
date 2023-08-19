@@ -8,7 +8,7 @@ app = create_app()
 CORS(app, resources=r'/*')
 
 # if __name__ == '__main__':
-#     app.run(debug=False, host='0.0.0.0')
+#     app.run(debug=True, host='127.0.0.1')
 
 server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
 server.serve_forever()

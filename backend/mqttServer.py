@@ -17,7 +17,7 @@ class MqttServer:
 
     @staticmethod
     # 成功和服务器建立连接时（收到CONNACK）进行回调
-    def __on_connect(self, client, userdata, flags, rc):
+    def __on_connect(client, userdata, flags, rc):
         if rc == 0:
             print("Connected to MQTT successfully!")
         else:
@@ -25,19 +25,19 @@ class MqttServer:
 
     @staticmethod
     # 在收到服务器发布的消息时（收到PUBLISH）进行回调
-    def __on_message(self, client, userdata, msg):
+    def __on_message(client, userdata, msg):
         # 接收到消息后根据主题类型进行分类处理
         print("Received message, topic:" + msg.topic)
         res_case(client, userdata, msg)
 
     @staticmethod
     # 断开连接
-    def __on_disconnect(self, client, userdata, rc):
+    def __on_disconnect(client, userdata, rc):
         print("Connection returned result:" + str(rc))
 
     @staticmethod
     # 在收到订阅回复时（收到SUBACK）进行回调
-    def __on_subscribe(self, client, userdata, mid, granted_qos):
+    def __on_subscribe(client, userdata, mid, granted_qos):
         print('New subscribe!')
 
     mqtt_client.on_connect = __on_connect
