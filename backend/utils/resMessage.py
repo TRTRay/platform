@@ -48,8 +48,8 @@ def res_start(client, userdata, msg):
     [result, index] = Utils.find_device(devId)
     deviceInform = StaticData.device_list[index]
     # 更改设备的工作状态
-    if deviceInform['stat'] == 'working':
-        print('{0} restart sampling!'.format(deviceInform['deviceId']))
+    # if deviceInform['stat'] == 'working':
+    #     print('{0} restart sampling!'.format(deviceInform['deviceId']))
     if deviceInform['stat'] == 'on':
         StaticData.device_list[index]['stat'] = 'working'
         print('{0} start sampling!'.format(deviceInform['deviceId']))
