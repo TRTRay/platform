@@ -68,6 +68,7 @@ def res_showdata(client, userdata, msg):
     data_key = deviceInform['deviceId'] + '_' + data_type
     # 对wav数据和csi数据分别做不同的处理
     if data_type == 'wav':
+        StaticData.audio_buff[data_key] += msg.payload
         data = np.fromstring(msg.payload, dtype=np.int16)
     elif data_type == 'csi':
         # csi用c语言publish过来，在格式转换上不如python流畅，以下是多次试验后的结果
@@ -102,7 +103,12 @@ def res_stop(client, userdata, msg):
         StaticData.data_slice[devId + '_csi'].clear()
 
 
-def res_update(client, userdate, msg):
+def res_download(client, userdata, msg):
+
+    return
+
+
+def res_update(client, userdata, msg):
     # next0818：收到更改设备参数的回应，更改本地保存的设备信息
     # 设备完成工作参数的修改，平台更新设备信息
     topic_split = msg.topic.split('/')
@@ -128,9 +134,13 @@ def res_case(client, userdata, msg):
         res_online(client, userdata, msg)
     if msg_topic.endswith('/offline'):
         res_offline(client, userdata, msg)
+    if msg_topic.endswith('/update'):
+        res_update(client, userdata, msg)
     if msg_topic.endswith('/start'):
         res_start(client, userdata, msg)
     if msg_topic.endswith('/stop'):
         res_stop(client, userdata, msg)
+    if msg_topic.endswith('/download'):
+        res_download(client, userdata, msg)
     if msg_topic.endswith('/showdata/wav') or msg_topic.endswith('/showdata/csi') or msg_topic.endswith('/showdata/plcr'):
         res_showdata(client, userdata, msg)
