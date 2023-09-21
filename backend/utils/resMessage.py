@@ -9,11 +9,12 @@ from backend.utils.staticData import StaticData
 # topic:'/client/{deviceType}/{deviceId}/online
 def res_online(client, userdata, msg):
     # 收到单个设备传来的上线信息，更新列表
-    load_data = json.loads(msg.payload)['data']
+    payload = json.loads(msg.payload)
     # wifi设备、robot在尝试完成初始化
-    if load_data['stat'] == 'off':
-        print('Device {0} is trying to setup.'.format(load_data['deviceId']))
+    if 'data' not in payload:
+        print('Device is trying to setup.')
         return
+    load_data = payload['data']
     [result, index] = Utils.find_device(load_data['deviceId'])
     if result:
         StaticData.device_list[index]['stat'] = "on"
@@ -29,7 +30,7 @@ def res_online(client, userdata, msg):
         StaticData.device_list.append(load_data)
     print(StaticData.device_list)
     # 创建数据缓存
-    StaticData.new_data_queue(load_data)
+    StaticData.empty_data_queue(load_data)
 
 
 # topic:'/client/{deviceType}/{deviceId}/offline
@@ -75,14 +76,13 @@ def res_showdata(client, userdata, msg):
         pyload_to_str = msg.payload.decode('utf-8')[1:-1]
         str_to_list = pyload_to_str.split(',')
         data_total = np.array(str_to_list, dtype=np.float64)
+        StaticData.csi_buff[data_key].append(data_total.tolist())
         # 简单处理，取第一个子载波
-        # # 最后一个包只有一个数据，单独处理
-        # if data_total.size != 180:
-        #     return
         data = np.array([math.sqrt(data_total[0] * data_total[0] + data_total[1] * data_total[1])])
     elif data_type == 'plcr':
         pyload_to_str = msg.payload.decode('utf-8')[1:-1]
         str_to_list = pyload_to_str.split(',')
+        StaticData.plcr_buff[data_key].append(str_to_list)
         data = np.array(str_to_list, dtype=np.float64)
     # 添加数据
     StaticData.data_slice[data_key].extend(data.tolist())

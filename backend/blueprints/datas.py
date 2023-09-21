@@ -100,20 +100,29 @@ def stop_sample():
     })
     MqttServer.publish(pub_topic, load)
     # 目前只有声学设备
-    time.sleep(1)
-    Utils.save_data_as_audio(deviceInform)
+    if deviceInform['devType'] == 'Speaker':
+        time.sleep(0.1)
+        Utils.save_data_as_audio(deviceInform)
+    # print(StaticData)
     return req_success('SUCCESS', '')
 
 
-@datas_bp.route('/api/datas/download', methods=['GET'])
+@datas_bp.route('/api/datas/download', methods=['GET', 'POST'])
 def download_data():
     # topic = '/broker/{devType}/{deviceId}/download, payload = None
     req_params = json.loads(request.data)
     [result, index] = Utils.find_device(req_params['deviceId'])
     deviceInform = StaticData.device_list[index]
 
-    # 目前只有音频文件
-    data_key = deviceInform['deviceId'] + '_' + 'wav'
     current_dir = os.path.dirname(__file__)
-    filepath = os.path.join(current_dir, '..', '..', 'static', data_key + '.wav')
-    return send_file(filepath, as_attachment=True)
+    if deviceInform['devType'] == 'Speaker':
+        data_key = deviceInform['deviceId'] + '_' + 'wav'
+        filepath = os.path.join(current_dir, '..', '..', 'static', data_key + '.wav')
+        return send_file(filepath, as_attachment=True)
+    elif deviceInform['devType'].startswith('WiFi'):
+        Utils.save_data_as_mat(deviceInform)
+        data_key1 = deviceInform['deviceId'] + '_' + 'csi'
+        data_key2 = deviceInform['deviceId'] + '_' + 'plcr'
+        filepath1 = os.path.join(current_dir, '..', '..', 'static', data_key1 + '.mat')
+        filepath2 = os.path.join(current_dir, '..', '..', 'static', data_key2 + '.mat')
+        return send_file(filepath1, as_attachment=True)
