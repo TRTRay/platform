@@ -2,6 +2,8 @@ import copy
 import math
 import os.path
 import time
+import zipfile
+import io
 
 import numpy as np
 from flask import Blueprint, request, send_file
@@ -125,4 +127,9 @@ def download_data():
         data_key2 = deviceInform['deviceId'] + '_' + 'plcr'
         filepath1 = os.path.join(current_dir, '..', '..', 'static', data_key1 + '.mat')
         filepath2 = os.path.join(current_dir, '..', '..', 'static', data_key2 + '.mat')
-        return send_file(filepath1, as_attachment=True)
+        zip_io = io.BytesIO()
+        with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.write(filepath1, data_key1 + '.mat')
+            zf.write(filepath2, data_key2 + '.mat')
+        zip_io.seek(0)
+        return send_file(zip_io, as_attachment=True, download_name='csi_and_plcr.zip', mimetype='application/zip')

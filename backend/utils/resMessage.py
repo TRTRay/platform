@@ -82,8 +82,8 @@ def res_showdata(client, userdata, msg):
     elif data_type == 'plcr':
         pyload_to_str = msg.payload.decode('utf-8')[1:-1]
         str_to_list = pyload_to_str.split(',')
-        StaticData.plcr_buff[data_key].append(str_to_list)
         data = np.array(str_to_list, dtype=np.float64)
+        StaticData.plcr_buff[data_key].append(data)
     # 添加数据
     StaticData.data_slice[data_key].extend(data.tolist())
 

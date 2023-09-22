@@ -68,7 +68,9 @@ class Utils:
 
         io.savemat(filepath1, {'csi': csi_matrix_stack})
 
-        # 暂时不带上plcr数据
         if len(plcr_arr) == 0:
             return
         filepath2 = os.path.join(current_dir, '..', '..', 'static', data_key2 + '.mat')
+        matrix_plcr = np.array(plcr_arr)
+        matrix_plcr = matrix_plcr.astype(np.float64)
+        io.savemat(filepath2, {'plcr': matrix_plcr})
