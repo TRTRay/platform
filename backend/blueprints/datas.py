@@ -116,17 +116,16 @@ def download_data():
     [result, index] = Utils.find_device(req_params['deviceId'])
     deviceInform = StaticData.device_list[index]
 
-    current_dir = os.path.dirname(__file__)
     if deviceInform['devType'] == 'Speaker':
         data_key = deviceInform['deviceId'] + '_' + 'wav'
-        filepath = os.path.join(current_dir, '..', '..', 'static', data_key + '.wav')
+        filepath = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'acoustic', data_key + '.wav')
         return send_file(filepath, as_attachment=True)
     elif deviceInform['devType'].startswith('WiFi'):
         Utils.save_data_as_mat(deviceInform)
         data_key1 = deviceInform['deviceId'] + '_' + 'csi'
         data_key2 = deviceInform['deviceId'] + '_' + 'plcr'
-        filepath1 = os.path.join(current_dir, '..', '..', 'static', data_key1 + '.mat')
-        filepath2 = os.path.join(current_dir, '..', '..', 'static', data_key2 + '.mat')
+        filepath1 = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', data_key1 + '.mat')
+        filepath2 = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', data_key2 + '.mat')
         zip_io = io.BytesIO()
         with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as zf:
             zf.write(filepath1, data_key1 + '.mat')

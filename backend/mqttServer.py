@@ -1,5 +1,5 @@
 from paho.mqtt import client as mqtt
-from backend.utils.resMessage import *
+from backend.utils.resMessage import res_case
 
 
 class MqttServer:

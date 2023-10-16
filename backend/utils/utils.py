@@ -10,12 +10,19 @@ from backend.utils.staticData import StaticData
 
 
 class Utils:
+    # path of platform
+    proj_path = os.path.join(os.path.dirname(__file__), '..', '..')
+
     @staticmethod
     def get_timestamp():
         now = time.time()
         date = datetime.datetime.fromtimestamp(now)
         data_string = date.strftime('%Y/%m/%d %H:%M:%S')
         return data_string
+
+    @staticmethod
+    def get_proj_path():
+        return Utils.proj_path
 
     @staticmethod
     def find_device(deviceid):
@@ -39,8 +46,7 @@ class Utils:
         data_key = deviceInform['deviceId'] + '_' + 'wav'
         audio_bits = StaticData.audio_buff[data_key]
 
-        current_dir = os.path.dirname(__file__)
-        filepath = os.path.join(current_dir, '..', '..',  'static', data_key + '.wav')
+        filepath = os.path.join(Utils.get_proj_path(), 'static/datas/acoustic', data_key)
         with wave.open(filepath, 'w') as audio_file:
             audio_file.setparams((deviceInform['params']['recorderChannals'], 2, deviceInform['params']['sampleRate'], 0, 'NONE', 'not compressed'))
             audio_file.writeframes(audio_bits)
@@ -54,8 +60,7 @@ class Utils:
 
         if len(csi_arr) == 0:
             return
-        current_dir = os.path.dirname(__file__)
-        filepath1 = os.path.join(current_dir, '..', '..', 'static', data_key1 + '.mat')
+        filepath1 = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', data_key1)
 
         # size of matrix: timeframes × 180
         matrix = np.array(csi_arr).reshape(len(csi_arr), len(csi_arr[0])).T
@@ -70,7 +75,22 @@ class Utils:
 
         if len(plcr_arr) == 0:
             return
-        filepath2 = os.path.join(current_dir, '..', '..', 'static', data_key2 + '.mat')
+        filepath2 = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', data_key2)
         matrix_plcr = np.array(plcr_arr)
         matrix_plcr = matrix_plcr.astype(np.float64)
         io.savemat(filepath2, {'plcr': matrix_plcr})
+
+    @staticmethod
+    def filelist_in_dir(dir_path):
+        files_info = []
+        for filename in os.listdir(dir_path):
+            filepath = os.path.join(dir_path, filename)
+            if os.path.isfile(filepath):
+                # 获取文件信息
+                file_info = os.stat(filepath)
+                files_info.append({
+                    'filename': filename,
+                    'size_bytes': file_info.st_size,  # 文件大小（字节）
+                    'last_modified': file_info.st_mtime  # 最后修改时间
+                })
+        return files_info
