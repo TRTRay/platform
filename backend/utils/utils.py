@@ -3,6 +3,7 @@ import time
 import wave
 import datetime
 
+import cv2
 import numpy as np
 from scipy import io
 
@@ -79,6 +80,21 @@ class Utils:
         matrix_plcr = np.array(plcr_arr)
         matrix_plcr = matrix_plcr.astype(np.float64)
         io.savemat(filepath2, {'plcr': matrix_plcr})
+
+    @staticmethod
+    def save_as_video(deviceInform):
+        params = deviceInform['params']
+        data_key = deviceInform['deviceId'] + '_' + 'png'
+        png_bits = StaticData.camera_buff[data_key]
+
+        filepath = os.path.join(Utils.get_proj_path(), 'static/datas/acoustic', data_key)
+        fps = 1000 / params['slot']
+        size = (params['width'], params['high'])
+        video = cv2.VideoWriter(filepath + data_key + '.mp4', cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), fps, size)
+        for img_b in png_bits:
+            img = cv2.imdecode(img_b, cv2.IMREAD_COLOR)
+            video.write(img)
+        video.release()
 
     @staticmethod
     def filelist_in_dir(dir_path):

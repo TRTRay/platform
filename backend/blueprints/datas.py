@@ -105,7 +105,6 @@ def stop_sample():
     if deviceInform['devType'] == 'Speaker':
         time.sleep(0.1)
         Utils.save_data_as_audio(deviceInform)
-    # print(StaticData)
     return req_success('SUCCESS', '')
 
 

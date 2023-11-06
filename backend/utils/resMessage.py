@@ -87,11 +87,15 @@ def res_showdata(client, userdata, msg):
         data = np.array(str_to_list, dtype=np.float64)
         StaticData.plcr_buff[data_key].append(data)
     elif data_type == 'png':
-        # cv2.imshow(msg.topic, cv2.imdecode(np.frombuffer(msg.payload, np.uint8), cv2.IMREAD_COLOR))
+        # 只做存储，没做别的
+        img_b = np.frombuffer(msg.payload, np.uint8)
+        StaticData.camera_buff[data_key].append(img_b)
+        # cv2.imshow(msg.topic, )
         # if cv2.waitKey(100) == 27:
         #     exit()
         pass
     # 添加数据
+    # 对camera不适用，所以不要使用camera的data_slice
     StaticData.data_slice[data_key].extend(data.tolist())
 
 
@@ -116,8 +120,6 @@ def res_download(client, userdata, msg):
 
 
 def res_update(client, userdata, msg):
-    # next0818：收到更改设备参数的回应，更改本地保存的设备信息
-    # 设备完成工作参数的修改，平台更新设备信息
     topic_split = msg.topic.split('/')
     devId = topic_split[3]
     [result, index] = Utils.find_device(devId)
@@ -134,20 +136,27 @@ def res_update(client, userdata, msg):
     deviceInform['params'] = load_data
 
 
-# 无匹配的topic
+res_dict = {
+    'online': res_online,
+    'offline': res_offline,
+    'update': res_update,
+    'start': res_start,
+    'stop': res_stop,
+    'download': res_download,
+    'csi': res_showdata,
+    'plcr': res_showdata,
+    'wav': res_showdata,
+    'png': res_showdata
+}
+
+
 def res_case(client, userdata, msg):
     msg_topic = msg.topic
-    if msg_topic.endswith('/online'):
-        res_online(client, userdata, msg)
-    if msg_topic.endswith('/offline'):
-        res_offline(client, userdata, msg)
-    if msg_topic.endswith('/update'):
-        res_update(client, userdata, msg)
-    if msg_topic.endswith('/start'):
-        res_start(client, userdata, msg)
-    if msg_topic.endswith('/stop'):
-        res_stop(client, userdata, msg)
-    if msg_topic.endswith('/download'):
-        res_download(client, userdata, msg)
-    if msg_topic.endswith('/showdata/wav') or msg_topic.endswith('/showdata/csi') or msg_topic.endswith('/showdata/plcr') or msg_topic.endswith('/showdata/png'):
-        res_showdata(client, userdata, msg)
+    topic_split = msg_topic.split('/')
+    ends = topic_split[-1]
+    if ends in res_dict:
+        res_function = res_dict[ends]
+        res_function(client, userdata, msg)
+    else:
+        print('No matched funtion!')
+
