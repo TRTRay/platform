@@ -1,6 +1,7 @@
 # on_message中对各个topic的响应函数
 import json
 import math
+import cv2
 import numpy as np
 from backend.utils.utils import Utils
 from backend.utils.staticData import StaticData
@@ -38,7 +39,8 @@ def res_offline(client, userdata, msg):
     # 收到单个设备的下线信息，更新设备列表
     load_data = json.loads(msg.payload)['data']
     [result, index] = Utils.find_device(load_data['deviceId'])
-    StaticData.device_list[index]['stat'] = 'off'
+    if result:
+        StaticData.device_list[index]['stat'] = 'off'
 
 
 # topic:'/client/{devType}/{deviceId}/start'
@@ -84,6 +86,11 @@ def res_showdata(client, userdata, msg):
         str_to_list = pyload_to_str.split(',')
         data = np.array(str_to_list, dtype=np.float64)
         StaticData.plcr_buff[data_key].append(data)
+    elif data_type == 'png':
+        # cv2.imshow(msg.topic, cv2.imdecode(np.frombuffer(msg.payload, np.uint8), cv2.IMREAD_COLOR))
+        # if cv2.waitKey(100) == 27:
+        #     exit()
+        pass
     # 添加数据
     StaticData.data_slice[data_key].extend(data.tolist())
 
@@ -142,5 +149,5 @@ def res_case(client, userdata, msg):
         res_stop(client, userdata, msg)
     if msg_topic.endswith('/download'):
         res_download(client, userdata, msg)
-    if msg_topic.endswith('/showdata/wav') or msg_topic.endswith('/showdata/csi') or msg_topic.endswith('/showdata/plcr'):
+    if msg_topic.endswith('/showdata/wav') or msg_topic.endswith('/showdata/csi') or msg_topic.endswith('/showdata/plcr') or msg_topic.endswith('/showdata/png'):
         res_showdata(client, userdata, msg)

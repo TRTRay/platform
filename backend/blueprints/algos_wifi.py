@@ -11,14 +11,14 @@ from backend.utils.jsonResult import *
 algos_wifi_bp = Blueprint('algos_wifi', __name__)
 
 
-@algos_wifi_bp.route('/api/algos/wifi/data_list', methods=['GET'])
+@algos_wifi_bp.route('/api/algos/wifi/datalist', methods=['GET'])
 def get_filelist():
     # wifi datas
-    dir_path = os.path.join(Utils.get_proj_path(), 'static/datas/wifi')
-    return Utils.filelist_in_dir(dir_path)
+    dir_path = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi')
+    return req_success('SUCCESS', Utils.filelist_in_dir(dir_path))
 
 
-@algos_wifi_bp.route('/api/algos/wifi/breath', methods=['GET'])
+@algos_wifi_bp.route('/api/algos/wifi/breath', methods=['GET', 'POST'])
 def detect_breath():
     req_params = json.loads(request.data)
     filepath = req_params['filepath']
@@ -38,7 +38,7 @@ def detect_breath():
         image = f.read()
         re_content['breath_wave'] = base64.b64encode(image).decode('utf-8')
 
-    return req_success('SUCCESS', json.dumps(re_content))
+    return req_success('SUCCESS', re_content)
 
 
 @algos_wifi_bp.route('/api/algos/wifi/feature', methods=['GET'])
