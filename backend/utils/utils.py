@@ -18,8 +18,15 @@ class Utils:
     def get_timestamp():
         now = time.time()
         date = datetime.datetime.fromtimestamp(now)
-        data_string = date.strftime('%Y/%m/%d %H:%M:%S')
-        return data_string
+        date_string = date.strftime('%Y/%m/%d %H:%M:%S')
+        return date_string
+
+    @staticmethod
+    def get_timestamp_in_name():
+        now = time.time()
+        date = datetime.datetime.fromtimestamp(now)
+        date_string = date.strftime('%Y%m%d-%H%M%S')
+        return date_string
 
     @staticmethod
     def get_proj_path():
@@ -85,15 +92,16 @@ class Utils:
     def save_as_video(deviceInform):
         params = deviceInform['params']
         data_key = deviceInform['deviceId'] + '_' + 'png'
-        png_bits = StaticData.camera_buff[data_key]
+        png_bits = StaticData.camera_buff
 
-        filepath = os.path.join(Utils.get_proj_path(), 'static/datas/acoustic', data_key)
+        filepath = os.path.join(Utils.get_proj_path(), 'static/datas/vision', data_key)
         fps = 1000 / params['slot']
         size = (params['width'], params['high'])
-        video = cv2.VideoWriter(filepath + data_key + '.mp4', cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), fps, size)
+        video = cv2.VideoWriter(filepath + '-' + Utils.get_timestamp_in_name() + '.mp4', cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), fps, size)
         for img_b in png_bits:
             img = cv2.imdecode(img_b, cv2.IMREAD_COLOR)
             video.write(img)
+        StaticData.camera_buff.clear()
         video.release()
 
     @staticmethod

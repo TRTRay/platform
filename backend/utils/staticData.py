@@ -4,7 +4,7 @@ class StaticData:
     audio_buff = {}
     csi_buff = {}
     plcr_buff = {}
-    camera_buff = {}
+    camera_buff = []
     begin_index = {}
 
     def __init__(self):
@@ -31,7 +31,6 @@ class StaticData:
         elif deviceInform['devType'] == 'Camera':
             data_key = deviceInform['deviceId'] + '_' + 'png'
             data_slice[data_key] = []
-            StaticData.camera_buff = b''
 
     @staticmethod
     def update_index(deviceInform, index):
