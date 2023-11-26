@@ -50,6 +50,18 @@ class Utils:
             return False
 
     @staticmethod
+    def csi_reshape(csi):
+        # csi_arr to csi_matrix
+        matrix = np.array(csi).reshape(len(csi), len(csi[0])).T
+        matrix = matrix.astype(np.complex128)
+
+        matrix[0::2, :] = np.complex128(matrix[0::2, :] + matrix[1::2, :] * 1j)
+        csi_matrix = matrix[0::2, :]
+        csi_matrix_split = np.split(csi_matrix, 3, axis=0)
+        csi_matrix_stack = np.stack(csi_matrix_split, axis=0)
+        return csi_matrix_stack
+
+    @staticmethod
     def save_data_as_audio(deviceInform):
         data_key = deviceInform['deviceId'] + '_' + 'wav'
         audio_bits = StaticData.audio_buff[data_key]
@@ -71,14 +83,7 @@ class Utils:
         filepath1 = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', data_key1)
 
         # size of matrix: timeframes × 180
-        matrix = np.array(csi_arr).reshape(len(csi_arr), len(csi_arr[0])).T
-        matrix = matrix.astype(np.complex128)
-
-        matrix[0::2, :] = np.complex128(matrix[0::2, :] + matrix[1::2, :] * 1j)
-        csi_matrix = matrix[0::2, :]
-        csi_matrix_split = np.split(csi_matrix, 3, axis=0)
-        csi_matrix_stack = np.stack(csi_matrix_split, axis=0)
-
+        csi_matrix_stack = Utils.csi_reshape(csi_arr)
         io.savemat(filepath1, {'csi': csi_matrix_stack})
 
         if len(plcr_arr) == 0:

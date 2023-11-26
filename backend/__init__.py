@@ -8,12 +8,15 @@ from backend.blueprints.map import map_bp
 from backend.blueprints.datas import datas_bp
 from backend.blueprints.algos_wifi import algos_wifi_bp
 
+from backend.blueprints.temp import temp_bp
+
 
 def register_blueprint(app):
     app.register_blueprint(devices_bp)
     app.register_blueprint(map_bp)
     app.register_blueprint(datas_bp)
     app.register_blueprint(algos_wifi_bp)
+    app.register_blueprint(temp_bp)
 
 
 def create_app():

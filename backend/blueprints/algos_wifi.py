@@ -1,3 +1,4 @@
+import copy
 import os
 import base64
 
@@ -5,6 +6,7 @@ from flask import Blueprint, request
 import scipy.io as sio
 
 from backend.algos.breath import breathe, plot_and_save_pic
+from backend.utils.staticData import StaticData
 from backend.utils.utils import Utils
 from backend.utils.jsonResult import *
 
@@ -21,7 +23,8 @@ def get_filelist():
 @algos_wifi_bp.route('/api/algos/wifi/breath', methods=['GET', 'POST'])
 def detect_breath():
     req_params = json.loads(request.data)
-    filepath = req_params['filepath']
+    filename = req_params['filename']
+    filepath = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', filename)
 
     mat_data = sio.loadmat(filepath)
     csi = mat_data['csi']
@@ -39,6 +42,23 @@ def detect_breath():
         re_content['breath_wave'] = base64.b64encode(image).decode('utf-8')
 
     return req_success('SUCCESS', re_content)
+
+
+@algos_wifi_bp.route('/api/algos/wifi/breath/realtime', methods=['GET', 'POST'])
+def detect_breath_realtime():
+    req_params = json.loads(request.data)
+
+    data_key = req_params['deviceId'] + '_' + 'csi'
+    runtime_list_csi = copy.copy(StaticData.data_slice[data_key])
+    StaticData.data_slice[data_key].clear()
+
+    csi = Utils.csi_reshape(runtime_list_csi)
+    respiration_rate, auto_shifted, filtbreath = breathe(csi)
+    inform = {
+        'runtime_data_csi': runtime_list_csi,
+        'respiration_rate': respiration_rate
+    }
+    return req_success('SUCCESS', inform)
 
 
 @algos_wifi_bp.route('/api/algos/wifi/feature', methods=['GET'])
