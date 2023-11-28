@@ -1,6 +1,8 @@
 # on_message中对各个topic的响应函数
 import json
 import math
+import os.path
+
 import cv2
 import numpy as np
 from backend.utils.utils import Utils
@@ -79,8 +81,14 @@ def res_showdata(client, userdata, msg):
         str_to_list = pyload_to_str.split(',')
         data_total = np.array(str_to_list, dtype=np.float64)
         StaticData.csi_buff[data_key].append(data_total.tolist())
-        # 简单处理，取第一个子载波
+        # 给实时呼吸使用的临时列表
+        StaticData.csi_for_breath[data_key].append(data_total.tolist())
+        # 数据可视化部分的简单处理，取第一个子载波
         data = np.array([math.sqrt(data_total[0] * data_total[0] + data_total[1] * data_total[1])])
+        # 实时呼吸需要用到真实数据，不能简单处理
+        # 但是这样处理也不行，前端要求数据是一整个数组，算法要求csi_arr的数组元素是一个长度为180的数组
+        # 目前的临时解决方案是再加一个数组专门给实时呼吸使用
+        # data = data_total
     elif data_type == 'plcr':
         pyload_to_str = msg.payload.decode('utf-8')[1:-1]
         str_to_list = pyload_to_str.split(',')

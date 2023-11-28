@@ -49,15 +49,21 @@ def detect_breath_realtime():
     req_params = json.loads(request.data)
 
     data_key = req_params['deviceId'] + '_' + 'csi'
-    runtime_list_csi = copy.copy(StaticData.data_slice[data_key])
-    StaticData.data_slice[data_key].clear()
+    runtime_list_csi = copy.copy(StaticData.csi_for_breath[data_key])
+    runtime_list_plcr = copy.copy(StaticData.data_slice[req_params['deviceId'] + '_' + 'plcr'])
+    StaticData.csi_for_breath[data_key].clear()
 
     csi = Utils.csi_reshape(runtime_list_csi)
     respiration_rate, auto_shifted, filtbreath = breathe(csi)
     inform = {
         'runtime_data_csi': runtime_list_csi,
+        'runtime_data_plcr': runtime_list_plcr,
+        'filtbreath': filtbreath.tolist(),
         'respiration_rate': respiration_rate
     }
+    # save_path = os.path.join(Utils.get_proj_path(), 'static', 'results', 'wifi', 'real_test')
+    # plot_and_save_pic("结果图", filtbreath, 2530 - 1, 2530 + auto_shifted, 'Breath',
+    #                   'Breath_Wave(Filtered Respiration Waveform)', 'Time', 'Amplitude', save_path)
     return req_success('SUCCESS', inform)
 
 

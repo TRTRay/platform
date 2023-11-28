@@ -3,6 +3,7 @@ import scipy.signal as signal
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io as sio
+import time
 
 from backend.utils.utils import Utils
 
@@ -89,7 +90,7 @@ def breathe(csi):
     pro_fft = np.fft.fft(theta_prime_var1, 8192, axis=0)  # Compute FFT along the first axis
     abs_fft = np.abs(pro_fft)
 
-    bnr = (np.sum(abs_fft[8:17, :, :], axis=0) / np.sum(abs_fft, axis=0))
+    bnr = (np.sum(abs_fft[10:30, :, :], axis=0) / np.sum(abs_fft, axis=0))
     bnr_value_index = np.argmax(bnr, axis=0)
     bnr_value = np.max(bnr, axis=0)
 

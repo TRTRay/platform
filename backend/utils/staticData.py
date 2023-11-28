@@ -7,6 +7,8 @@ class StaticData:
     camera_buff = []
     begin_index = {}
 
+    csi_for_breath = {}
+
     def __init__(self):
         pass
 
@@ -28,6 +30,7 @@ class StaticData:
             StaticData.begin_index[data_key2] = 0
             StaticData.csi_buff[data_key2] = []
             StaticData.plcr_buff[data_key1] = []
+            StaticData.csi_for_breath[data_key2] = []
         elif deviceInform['devType'] == 'Camera':
             data_key = deviceInform['deviceId'] + '_' + 'png'
             data_slice[data_key] = []

@@ -52,6 +52,7 @@ class Utils:
     @staticmethod
     def csi_reshape(csi):
         # csi_arr to csi_matrix
+        # matrix sgape: frametotal / 30 / 3
         matrix = np.array(csi).reshape(len(csi), len(csi[0])).T
         matrix = matrix.astype(np.complex128)
 
@@ -59,7 +60,9 @@ class Utils:
         csi_matrix = matrix[0::2, :]
         csi_matrix_split = np.split(csi_matrix, 3, axis=0)
         csi_matrix_stack = np.stack(csi_matrix_split, axis=0)
-        return csi_matrix_stack
+        # 维度信息：帧数×30×3
+        csi_shaped = np.transpose(csi_matrix_stack, (2, 0, 1))
+        return csi_shaped
 
     @staticmethod
     def save_data_as_audio(deviceInform):
@@ -80,7 +83,7 @@ class Utils:
 
         if len(csi_arr) == 0:
             return
-        filepath1 = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', data_key1)
+        filepath1 = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', data_key1 + '.mat')
 
         # size of matrix: timeframes × 180
         csi_matrix_stack = Utils.csi_reshape(csi_arr)
@@ -88,7 +91,7 @@ class Utils:
 
         if len(plcr_arr) == 0:
             return
-        filepath2 = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', data_key2)
+        filepath2 = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', data_key2 + '.mat')
         matrix_plcr = np.array(plcr_arr)
         matrix_plcr = matrix_plcr.astype(np.float64)
         io.savemat(filepath2, {'plcr': matrix_plcr})
