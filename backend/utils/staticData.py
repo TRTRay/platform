@@ -8,6 +8,7 @@ class StaticData:
     begin_index = {}
 
     csi_for_breath = {}
+    png_for_real_camera = []
 
     def __init__(self):
         pass

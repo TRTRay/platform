@@ -99,6 +99,7 @@ def res_showdata(client, userdata, msg):
         img_b = np.frombuffer(msg.payload, np.uint8)
         StaticData.camera_buff.append(img_b)
         data = img_b
+        StaticData.png_for_real_camera.append(data)
         # StaticData.data_slice[data_key].append(img_b)
         # cv2.imshow(msg.topic, )
 

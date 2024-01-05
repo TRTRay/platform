@@ -9,17 +9,20 @@ from backend.utils.utils import Utils
 temp_bp = Blueprint('temp', __name__)
 
 
-@temp_bp.route('/api/temp/cv/showdata', methods=['GET'])
+@temp_bp.route('/api/temp/cv/showdata', methods=['GET', 'POST'])
 def get_png():
     req_params = json.loads(request.data)
     deviceId = req_params['deviceId']
     data_key = deviceId + '_' + 'png'
-    png_bits = StaticData.data_slice[data_key]
+    png_bits = StaticData.png_for_real_camera
 
     png_data = []
     if png_bits:
         png_data = copy.copy(png_bits)
         png_bits.clear()
+
+    if png_data:
+        png_data = png_data[0].tolist()
 
     inform = {
         'png_bits': png_data

@@ -6,6 +6,7 @@ from flask import Blueprint, request
 import scipy.io as sio
 
 from backend.algos.breath import breathe, plot_and_save_pic
+from backend.algos.classify import classify
 from backend.utils.staticData import StaticData
 from backend.utils.utils import Utils
 from backend.utils.jsonResult import *
@@ -52,13 +53,24 @@ def detect_breath_realtime():
     runtime_list_csi = copy.copy(StaticData.csi_for_breath[data_key])
     runtime_list_plcr = copy.copy(StaticData.data_slice[req_params['deviceId'] + '_' + 'plcr'])
     StaticData.csi_for_breath[data_key].clear()
+    csi_view = copy.copy(StaticData.data_slice[data_key])
+    StaticData.data_slice[data_key].clear()
+    inform = {
+        'runtime_data_csi': [],
+        'runtime_data_plcr': [],
+        'filtbreath': [],
+        'respiration_rate': 0
+    }
 
     csi = Utils.csi_reshape(runtime_list_csi)
+    if csi.size == 0:
+        print(csi.size)
+        return req_success('SUCCESS', inform)
     respiration_rate, auto_shifted, filtbreath = breathe(csi)
     inform = {
-        'runtime_data_csi': runtime_list_csi,
+        'runtime_data_csi': csi_view,
         'runtime_data_plcr': runtime_list_plcr,
-        'filtbreath': filtbreath.tolist(),
+        'filtbreath': filtbreath.tolist()[2530 - 1: 2530 + auto_shifted],
         'respiration_rate': respiration_rate
     }
     # save_path = os.path.join(Utils.get_proj_path(), 'static', 'results', 'wifi', 'real_test')
@@ -69,4 +81,19 @@ def detect_breath_realtime():
 
 @algos_wifi_bp.route('/api/algos/wifi/feature', methods=['GET'])
 def classify_feature():
-    return req_success('SUCCESS', '')
+    req_params = json.loads(request.data)
+    filename = req_params['filename']
+    filepath = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', filename)
+
+    mat_data = sio.loadmat(filepath)
+    # 后续需要提醒他们统一一下命名格式
+    csi = mat_data['get_csi']
+    # 统一格式如下
+    # csi = mat_data['csi']
+
+    # 返回结果是一个一维数组记录了动作的类别
+    motion = classify(csi)
+    inform = {
+        'motion': motion.tolist()
+    }
+    return req_success('SUCCESS', inform)

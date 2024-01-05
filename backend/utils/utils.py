@@ -4,6 +4,7 @@ import wave
 import datetime
 
 import cv2
+import copy
 import numpy as np
 from scipy import io
 
@@ -78,8 +79,10 @@ class Utils:
     def save_data_as_mat(deviceInform):
         data_key1 = deviceInform['deviceId'] + '_' + "csi"
         data_key2 = deviceInform['deviceId'] + '_' + 'plcr'
-        csi_arr = StaticData.csi_buff[data_key1]
-        plcr_arr = StaticData.plcr_buff[data_key2]
+        csi_arr = copy.copy(StaticData.csi_buff[data_key1])
+        plcr_arr = copy.copy(StaticData.plcr_buff[data_key2])
+        StaticData.csi_buff[data_key1].clear()
+        StaticData.plcr_buff[data_key2].clear()
 
         if len(csi_arr) == 0:
             return
