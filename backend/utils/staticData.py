@@ -8,6 +8,10 @@ class StaticData:
     begin_index = {}
 
     csi_for_breath = {}
+    # 应该是用不上
+    win_len_for_breath = 1000
+    # 需要和前端的接口调用频率同步
+    step_len_for_breath = 300
     png_for_real_camera = []
 
     def __init__(self):
