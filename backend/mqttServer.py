@@ -1,5 +1,6 @@
 from paho.mqtt import client as mqtt
 from backend.utils.resMessage import res_case
+from backend.log import mlog
 
 
 class MqttServer:
@@ -8,7 +9,7 @@ class MqttServer:
     @staticmethod
     def run_mqtt_service(host, port, keepalive):
         MqttServer.mqtt_client.connect(host, port, keepalive)
-        MqttServer.mqtt_client.subscribe('/client/#')
+        MqttServer.mqtt_client.subscribe("/client/#")
         MqttServer.mqtt_client.loop_forever()
 
     @staticmethod
@@ -19,26 +20,26 @@ class MqttServer:
     # 成功和服务器建立连接时（收到CONNACK）进行回调
     def __on_connect(client, userdata, flags, rc):
         if rc == 0:
-            print("Connected to MQTT successfully!")
+            mlog.info("Connected to MQTT successfully!")
         else:
-            print("Failed to connect, return code :{0}".format(rc))
+            mlog.error("Failed to connect, return code :{0}".format(rc))
 
     @staticmethod
     # 在收到服务器发布的消息时（收到PUBLISH）进行回调
     def __on_message(client, userdata, msg):
         # 接收到消息后根据主题类型进行分类处理
-        print("Received message, topic:" + msg.topic)
+        mlog.info("Received message, topic:" + msg.topic)
         res_case(client, userdata, msg)
 
     @staticmethod
     # 断开连接
     def __on_disconnect(client, userdata, rc):
-        print("Connection returned result:" + str(rc))
+        mlog.info("Connection returned result:" + str(rc))
 
     @staticmethod
     # 在收到订阅回复时（收到SUBACK）进行回调
     def __on_subscribe(client, userdata, mid, granted_qos):
-        print('New subscribe!')
+        mlog.info("New subscribe!")
 
     mqtt_client.on_connect = __on_connect
     mqtt_client.on_disconnect = __on_disconnect
