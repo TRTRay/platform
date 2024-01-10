@@ -50,27 +50,35 @@ def detect_breath_realtime():
     req_params = json.loads(request.data)
 
     data_key = req_params['deviceId'] + '_' + 'csi'
-    runtime_list_csi = copy.copy(StaticData.csi_for_breath[data_key])
-    runtime_list_plcr = copy.copy(StaticData.data_slice[req_params['deviceId'] + '_' + 'plcr'])
-    StaticData.csi_for_breath[data_key].clear()
-    csi_view = copy.copy(StaticData.data_slice[data_key])
-    StaticData.data_slice[data_key].clear()
     inform = {
         'runtime_data_csi': [],
         'runtime_data_plcr': [],
         'filtbreath': [],
         'respiration_rate': 0
     }
+    if len(StaticData.csi_for_breath[data_key]) < StaticData.win_len_for_breath:
+        return req_success('SUCCESS', inform)
+
+    runtime_list_csi = copy.copy(StaticData.csi_for_breath[data_key][-1000:])
+    runtime_list_plcr = copy.copy(StaticData.data_slice[req_params['deviceId'] + '_' + 'plcr'])
+    # 现在需要保存之前的数据作为下一个窗的一部分，所以别清掉了
+    # StaticData.csi_for_breath[data_key].clear()
+    # 用来可视化的数据队列
+    csi_view = copy.copy(StaticData.data_slice[data_key])
+    StaticData.data_slice[data_key].clear()
 
     csi = Utils.csi_reshape(runtime_list_csi)
-    if csi.size == 0:
-        print(csi.size)
-        return req_success('SUCCESS', inform)
+    # 感觉不需要，后续再看
+    # if csi.size == 0:
+    #     return req_success('SUCCESS', inform)
+
+    # 呼吸检测主体
     respiration_rate, auto_shifted, filtbreath = breathe(csi)
+    result = filtbreath.tolist()[2530 - 1: 2530 + auto_shifted]
     inform = {
         'runtime_data_csi': csi_view,
         'runtime_data_plcr': runtime_list_plcr,
-        'filtbreath': filtbreath.tolist()[2530 - 1: 2530 + auto_shifted],
+        'filtbreath': result[-StaticData.step_len_for_breath:],
         'respiration_rate': respiration_rate
     }
     # save_path = os.path.join(Utils.get_proj_path(), 'static', 'results', 'wifi', 'real_test')
