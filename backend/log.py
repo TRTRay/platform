@@ -20,7 +20,7 @@ alog.add(
 mlog.add(
     "./runtime/mosquitto.log",
     format="{time} {level} {message}",
-    level="DEBUG",
+    level="TRACE",
     filter=lambda record: record["extra"].get("module") == "mosquitto",
 )
 

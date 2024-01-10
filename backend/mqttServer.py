@@ -20,7 +20,7 @@ class MqttServer:
     # 成功和服务器建立连接时（收到CONNACK）进行回调
     def __on_connect(client, userdata, flags, rc):
         if rc == 0:
-            mlog.info("Connected to MQTT successfully!")
+            mlog.trace("Connected to MQTT successfully!")
         else:
             mlog.error("Failed to connect, return code :{0}".format(rc))
 
@@ -28,18 +28,18 @@ class MqttServer:
     # 在收到服务器发布的消息时（收到PUBLISH）进行回调
     def __on_message(client, userdata, msg):
         # 接收到消息后根据主题类型进行分类处理
-        mlog.info("Received message, topic:" + msg.topic)
+        mlog.trace("Received message, topic:" + msg.topic)
         res_case(client, userdata, msg)
 
     @staticmethod
     # 断开连接
     def __on_disconnect(client, userdata, rc):
-        mlog.info("Connection returned result:" + str(rc))
+        mlog.trace("Connection returned result:" + str(rc))
 
     @staticmethod
     # 在收到订阅回复时（收到SUBACK）进行回调
     def __on_subscribe(client, userdata, mid, granted_qos):
-        mlog.info("New subscribe!")
+        mlog.trace("New subscribe!")
 
     mqtt_client.on_connect = __on_connect
     mqtt_client.on_disconnect = __on_disconnect
