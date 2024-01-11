@@ -1,15 +1,14 @@
 # 参数
 # test模式下，做一些假数据
 test_mode = True
-test_param = {
-    'random_generate_fre': 1
-}
+test_param = {"random_generate_fre": 1}
 
 # mqtt服务器地址、端口、窗口期
 # cloud server
 # broker_ip = '182.92.152.209'
 # localhost
-broker_ip = '192.168.137.1'
+# broker_ip = '192.168.137.1'
+broker_ip = "127.0.0.1"
 # localhost with hardware link
 # broker_ip = '192.168.0.190'
 
