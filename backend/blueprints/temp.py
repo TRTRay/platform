@@ -5,6 +5,7 @@ from backend.utils.jsonResult import *
 from flask import Blueprint, request, send_file
 from backend.utils.staticData import StaticData
 from backend.utils.utils import Utils
+from backend.mqttServer import MqttServer
 
 temp_bp = Blueprint('temp', __name__)
 
@@ -46,3 +47,10 @@ def download_data():
     filepath = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'vision', filename)
     return send_file(filepath, as_attachment=True)
     pass
+
+
+@temp_bp.route('/api/temp/mmv/test', methods=['GET'])
+def test_mmv():
+    MqttServer.publish('/broker/MMV/MMV-001/start', '')
+    MqttServer.publish('/broker/MMV/MMV-001/showdata/mmv', '')
+    return req_success('SUCCESS', '')
