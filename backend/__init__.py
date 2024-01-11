@@ -34,3 +34,5 @@ mqtt_server_thread = Thread(
     args=(broker_ip, broker_port, keep_alive),
 )
 mqtt_server_thread.start()
+
+logger.info("Backend Init Done")

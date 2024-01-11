@@ -1,13 +1,16 @@
-from datetime import time
-
+from ctypes import resize
 from flask import Blueprint, request
 from backend.mqttServer import MqttServer
+from backend.utils.staticData import StaticData
 from backend.utils.utils import Utils
-from backend.utils.jsonResult import *
+from backend.utils.jsonResult import req_failed, req_success
+from backend.log import logger
 
-map_bp = Blueprint('map', __name__)
+import time
+import json
 
-#
+map_bp = Blueprint("map", __name__)
+
 # @map_bp.route('/api/map/config', method=['GET'])
 # def map_init():
 #     # 初始化机器人
@@ -15,44 +18,101 @@ map_bp = Blueprint('map', __name__)
 #     # topic = '/broker/{devType}/{deviceId}/config, payload = message
 #     req_params = json.loads(request.data)
 #     [result, index] = Utils.find_device(req_params['deviceId'])
-#     deviceInform = device_list[index]
+#     deviceInform = StaticData.device_list[index]
 #     if deviceInform['stat'] != 'waiting':
-#         device_list[index]['stat'] = 'waiting'
+#         StaticData.device_list[index]['stat'] = 'waiting'
 #     pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/config'
 #     load = json.dumps({
 #         'message': 'Broker request for init.'
 #     })
 #     client.publish(pub_topic, payload=load)
-#     # 计时，等待device_list中设备状态变化，否则返回超时
+#     # 计时，等待StaticData.device_list中设备状态变化，否则返回超时
 #     start_time = time.time()
 #     while time.time() - start_time < 10:
-#         if device_list[index]['param'] == 'on':
-#             return req_success('SUCCESS', device_list[index])
+#         if StaticData.device_list[index]['param'] == 'on':
+#             return req_success('SUCCESS', StaticData.device_list[index])
 #     return req_failed('Timeout', '')
 #
-#
-# @map_bp.route('/api/map/start', method=['GET'])
-# def map_start():
-#     # 开启gmapping建图
-#     req_params = json.loads(request.data)
-#     [result, index] = Utils.find_device(req_params['deviceId'])
-#     deviceInform = device_list[index]
-#     if deviceInform['stat'] != 'on':
-#         # 设备状态不对
-#         print('Robot is not ready')
-#         return
-#     else:
-#         pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/start'
-#         load = json.dumps({
-#             'message': 'Broker request for gmapping'
-#         })
-#         client.publish(pub_topic, payload=load)
-#         # 计时，等待devicelist中设备状态变化，否则返回超时
-#         start_time = time.time()
-#         while time.time() - start_time < 10:
-#             if device_list[index]['param'] == 'working':
-#                 return req_success('SUCCESS', device_list[index])
-#         return req_failed('Timeout', '')
+
+
+@map_bp.route("/api/map/bye", methods=["GET"])
+def map_bye():
+    # 开启gmapping建图
+    req_params = json.loads(request.data)
+    [_, index] = Utils.find_device(req_params["deviceId"])
+    deviceInform = StaticData.device_list[index]
+    if deviceInform["stat"] != "on":
+        # 设备状态不对
+        print("Robot is not ready")
+        return req_success("Timeout", "")
+
+    pub_topic = (
+        "/broker"
+        + "/"
+        + deviceInform["devType"]
+        + "/"
+        + deviceInform["deviceId"]
+        + "/bye"
+    )
+    load = json.dumps({"message": "Broker request for gmapping"})
+    MqttServer.publish(pub_topic, payload=load)
+    logger.info(pub_topic)
+
+    return req_success("SUCCESS", "")
+
+
+@map_bp.route("/api/map/start", methods=["GET"])
+def map_start():
+    # 开启gmapping建图
+    req_params = json.loads(request.data)
+    [_, index] = Utils.find_device(req_params["deviceId"])
+    deviceInform = StaticData.device_list[index]
+    if deviceInform["stat"] != "on":
+        # 设备状态不对
+        print("Robot is not ready")
+        return req_success("Timeout", "")
+
+    pub_topic = (
+        "/broker"
+        + "/"
+        + deviceInform["devType"]
+        + "/"
+        + deviceInform["deviceId"]
+        + "/map"
+        + "/start"
+    )
+    load = json.dumps({"message": "Broker request for gmapping"})
+    MqttServer.publish(pub_topic, payload=load)
+
+    # 计时，等待devicelist中设备状态变化，否则返回超时
+    start_time = time.time()
+    while time.time() - start_time < 10:
+        if StaticData.device_list[index]["param"] == "working":
+            return req_success("SUCCESS", StaticData.device_list[index])
+    return req_success("Timeout", "")
+
+
+@map_bp.route("/api/map/image", methods=["GET"])
+def fetch_image():
+    req_params = json.loads(request.data)
+    [_, index] = Utils.find_device(req_params["deviceId"])
+    deviceInform = StaticData.device_list[index]
+    pub_topic = (
+        "/broker"
+        + "/"
+        + deviceInform["devType"]
+        + "/"
+        + deviceInform["deviceId"]
+        + "/map"
+        + "/fetch"
+    )
+    load = json.dumps({"message": "Fetch Image"})
+    MqttServer.publish(pub_topic, payload=load)
+
+    # TODO: Fetch Image from "broker/$DeviceType/$DeviceId/map/send"
+    return req_success("SUCCESS", StaticData.device_list[index])
+
+
 #
 #
 # @map_bp.route('/api/map/stop', method=['GET'])
@@ -60,7 +120,7 @@ map_bp = Blueprint('map', __name__)
 #     # 停止gmapping建图
 #     req_params = json.loads(request.data)
 #     [result, index] = Utils.find_device(req_params['deviceId'])
-#     deviceInform = device_list[index]
+#     deviceInform = StaticData.device_list[index]
 #     # 应该不会触发
 #     if deviceInform['stat'] != 'working':
 #         # 设备状态不对
@@ -72,8 +132,8 @@ map_bp = Blueprint('map', __name__)
 #     client.publish(pub_topic, payload=load)
 #     start_time = time.time()
 #     while time.time() - start_time < 10:
-#         if device_list[index]['param'] == 'on':
-#             return req_success('SUCCESS', device_list[index])
+#         if StaticData.device_list[index]['param'] == 'on':
+#             return req_success('SUCCESS', StaticData.device_list[index])
 #     return req_failed('Timeout', '')
 #
 #
@@ -82,7 +142,7 @@ map_bp = Blueprint('map', __name__)
 #     # 请求slam地图
 #     req_params = json.loads(request.data)
 #     [result, index] = Utils.find_device(req_params['deviceId'])
-#     deviceInform = device_list[index]
+#     deviceInform = StaticData.device_list[index]
 #     # 应该不会触发
 #     if deviceInform['stat'] != 'working':
 #         # 设备状态不对
@@ -115,7 +175,7 @@ map_bp = Blueprint('map', __name__)
 #     # if not result:
 #     #     msg = 'Refuse: No matched device has been found!'
 #     #     return req_bad_request('Unauthorized', msg)
-#     deviceInform = device_list[index]
+#     deviceInform = StaticData.device_list[index]
 #     # broker端更改设备位置
 #     deviceInform['position'] = req_params['position']
 #     # 预留操作，设备暂时不需要知道自己的位置
@@ -137,7 +197,7 @@ map_bp = Blueprint('map', __name__)
 #     # if not result:
 #     #     msg = 'Refuse: No matched device has been found!'
 #     #     return req_bad_request('Unauthorized', msg)
-#     deviceInform = device_list[index]
+#     deviceInform = StaticData.device_list[index]
 #     # broker端更改设备位置
 #     deviceInform['position'] = []
 #     # 预留操作，设备暂时不需要知道自己的位置
