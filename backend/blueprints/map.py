@@ -109,7 +109,7 @@ def fetch_image():
     load = json.dumps({"message": "Fetch Image"})
     MqttServer.publish(pub_topic, payload=load)
 
-    # TODO: Fetch Image from "broker/$DeviceType/$DeviceId/map/send"
+    # TODO: Fetch Image from "broker/$DeviceType/$DeviceId/map/png"
     return req_success("SUCCESS", StaticData.device_list[index])
 
 
