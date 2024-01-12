@@ -20,7 +20,13 @@ def res_online(client, userdata, msg):
     load_data = payload['data']
     [result, index] = Utils.find_device(load_data['deviceId'])
     if result:
-        StaticData.device_list[index]['stat'] = "on"
+        # robot完成配置
+        if load_data['stat'] == "working":
+            StaticData.device_list[index]['stat'] = 'working'
+        elif load_data['stat'] == 'mapping':
+            StaticData.device_list[index]['stat'] = 'mapping'
+        else:
+            StaticData.device_list[index]['stat'] = "on"
     else:
         # 将WiFi设备的工作参数进行简单映射，可以优化
         if load_data['devType'] == 'WiFi-Tx' or load_data['devType'] == 'WiFi-Rx':
@@ -65,6 +71,7 @@ def res_showdata(client, userdata, msg):
     # 把接收数据存在一个地方供前端取
     topic_split = msg.topic.split('/')
     devId = topic_split[3]
+    devType = topic_split[4]
     data_type = topic_split[5]
     data = np.array([])
     # 获取设备信息
@@ -95,20 +102,20 @@ def res_showdata(client, userdata, msg):
         data = np.array(str_to_list, dtype=np.float64)
         StaticData.plcr_buff[data_key].append(data)
     elif data_type == 'png':
-        # 只做存储，没做别的
         img_b = np.frombuffer(msg.payload, np.uint8)
-        StaticData.camera_buff.append(img_b)
         data = img_b
-        StaticData.png_for_real_camera.append(data)
-        # StaticData.data_slice[data_key].append(img_b)
-        # cv2.imshow(msg.topic, )
-
-        # 这个地方插入一下
-        # if cv2.waitKey(100) == 27:
-        #     exit()
+        if devType == "camera":
+            # 只做存储，没做别的
+            StaticData.camera_buff.append(data)
+            StaticData.png_for_real_camera.append(data)
+            # StaticData.data_slice[data_key].append(img_b)
+            # cv2.imshow(msg.topic, )
+        elif devType == "robot":
+            StaticData.robot_buff.append(data)
 
     # 添加数据
     # 对camera不适用，所以不要使用camera的data_slice
+    # 对robot返回的png_map也不适用
     StaticData.data_slice[data_key].extend(data.tolist())
 
 
