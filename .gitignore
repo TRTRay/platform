@@ -2,3 +2,5 @@ __pycache__/
 **/__pycache__/
 *.log
 
+backend/blueprints/__pycache__
+backend/utils/__pycache__
