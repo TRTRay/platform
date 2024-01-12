@@ -13,7 +13,7 @@ log = logger.bind(module="application")
 alog.add(
     "./runtime/api_access.log",
     format="{message}",
-    level="INFO",
+    level="TRACE",
     filter=lambda record: record["extra"].get("module") == "access_log",
 )
 
@@ -28,11 +28,11 @@ mlog.add(
 log.add(
     "./runtime/application.log",
     format="{time} {level} {message}",
-    level="DEBUG",
+    level="TRACE",
     filter=lambda record: record["extra"].get("module") == "application",
 )
 
-logger.add("./runtime/verbose.log", format="{time} {level} {message}", level="DEBUG")
+logger.add("./runtime/verbose.log", format="{time} {level} {message}", level="TRACE")
 
 
 class InterceptHandler(logging.Handler):
