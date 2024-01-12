@@ -5,6 +5,7 @@ class StaticData:
     csi_buff = {}
     plcr_buff = {}
     camera_buff = []
+    robot_buff = []
     begin_index = {}
 
     csi_for_breath = {}

@@ -124,12 +124,12 @@ def fetch_image():
 #     # 应该不会触发
 #     if deviceInform['stat'] != 'working':
 #         # 设备状态不对
-#         return
+#         return req_failed('WrongStat', '')
 #     pub_topic = '/broker/' + deviceInform['devType'] + '/' + deviceInform['deviceId'] + '/stop'
 #     load = json.dumps({
 #         'message': 'Broker request for stop.'
 #     })
-#     client.publish(pub_topic, payload=load)
+#     MqttServer.publish(pub_topic, payload=load)
 #     start_time = time.time()
 #     while time.time() - start_time < 10:
 #         if StaticData.device_list[index]['param'] == 'on':
@@ -144,15 +144,22 @@ def fetch_image():
 #     [result, index] = Utils.find_device(req_params['deviceId'])
 #     deviceInform = StaticData.device_list[index]
 #     # 应该不会触发
-#     if deviceInform['stat'] != 'working':
+#     if deviceInform['stat'] != 'mapping':
 #         # 设备状态不对
-#         return
+#         return req_failed('WrongStat')
 #     pub_topic = '/broker/' + deviceInform['devType'] + deviceInform['deviceId'] + '/showmap'
 #     load = json.dumps({
 #         'message': 'Broker request for map.'
 #     })
-#     client.publish(pub_topic, payload=load)
+#     MqttServer.publish(pub_topic, payload=load)
 #     # 从数据队列中取出地图并返回
+#     time.sleep(0.5)
+#     png_data = copy.copy(StaticData.robot_buff[0])
+#     StaticData.robot_buff.clear()
+#     inform = {
+#         "png": png_data
+#     }
+#     req_success('SUCCESS', inform)
 #
 #
 # # 添加、删除设备、生成地图，对应有一个算法

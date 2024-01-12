@@ -33,7 +33,6 @@ log.add(
 )
 
 logger.add("./runtime/verbose.log", format="{time} {level} {message}", level="TRACE")
-logger.info("Log Init Done")
 
 
 class InterceptHandler(logging.Handler):
