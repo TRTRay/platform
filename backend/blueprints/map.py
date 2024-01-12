@@ -63,7 +63,6 @@ def map_bye():
 
 @map_bp.route("/api/map/start", methods=["GET"])
 def map_start():
-    # 开启gmapping建图
     req_params = json.loads(request.data)
     [_, index] = Utils.find_device(req_params["deviceId"])
     deviceInform = StaticData.device_list[index]
@@ -87,7 +86,7 @@ def map_start():
     # 计时，等待devicelist中设备状态变化，否则返回超时
     start_time = time.time()
     while time.time() - start_time < 10:
-        if StaticData.device_list[index]["param"] == "working":
+        if StaticData.device_list[index]["stat"] == "working":
             return req_success("SUCCESS", StaticData.device_list[index])
     return req_success("Timeout", "")
 

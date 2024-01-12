@@ -112,6 +112,16 @@ def res_showdata(client, userdata, msg):
             # cv2.imshow(msg.topic, )
         elif devType == "robot":
             StaticData.robot_buff.append(data)
+    elif data_type == "pgm":
+        img_b = np.frombuffer(msg.payload, np.uint8)
+        data = img_b
+        # 只做存储，没做别的
+        if devType != "robot":
+            # TODO: ERROR
+            pass
+        StaticData.robot_buff.append(data)
+        with open("map.pgm", "wb") as f:
+            f.write(data)
 
     # 添加数据
     # 对camera不适用，所以不要使用camera的data_slice
@@ -168,6 +178,7 @@ res_dict = {
     "plcr": res_showdata,
     "wav": res_showdata,
     "png": res_showdata,
+    "pgn": res_showdata,
 }
 
 
