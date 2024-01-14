@@ -10,7 +10,7 @@ from backend.utils.staticData import StaticData
 map_bp = Blueprint('map', __name__)
 
 
-@map_bp.route('/api/map/config', method=['GET'])
+@map_bp.route('/api/map/config', methods=['GET'])
 def map_init():
     # 初始化机器人
     # 机器人上线前不带初始化
@@ -36,7 +36,7 @@ def map_init():
     return req_failed('Timeout', '')
 
 
-@map_bp.route('/api/map/start', method=['GET'])
+@map_bp.route('/api/map/start', methods=['GET'])
 def map_start():
     # 开启gmapping建图
     req_params = json.loads(request.data)
@@ -61,8 +61,8 @@ def map_start():
         return req_failed('Timeout', '')
 
 
-@map_bp.route('/api/map/stop', method=['GET'])
-def map_init():
+@map_bp.route('/api/map/stop', methods=['GET'])
+def map_stop():
     # 停止gmapping建图
     req_params = json.loads(request.data)
     [result, index] = Utils.find_device(req_params['deviceId'])
@@ -83,8 +83,8 @@ def map_init():
     return req_failed('Timeout', '')
 
 
-@map_bp.route('/api/map/showmap', method=['GET'])
-def map_init():
+@map_bp.route('/api/map/showmap', methods=['GET'])
+def map_request():
     # 请求slam地图
     req_params = json.loads(request.data)
     [result, index] = Utils.find_device(req_params['deviceId'])

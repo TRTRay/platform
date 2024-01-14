@@ -86,7 +86,8 @@ class Utils:
 
         if len(csi_arr) == 0:
             return
-        filepath1 = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', data_key1 + '.mat')
+        filepath1 = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', data_key1 +
+                                 Utils.get_timestamp_in_name() + '.mat')
 
         # size of matrix: timeframes × 180
         csi_matrix_stack = Utils.csi_reshape(csi_arr)
@@ -94,7 +95,8 @@ class Utils:
 
         if len(plcr_arr) == 0:
             return
-        filepath2 = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', data_key2 + '.mat')
+        filepath2 = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', data_key2 +
+                                 Utils.get_timestamp_in_name() + '.mat')
         matrix_plcr = np.array(plcr_arr)
         matrix_plcr = matrix_plcr.astype(np.float64)
         io.savemat(filepath2, {'plcr': matrix_plcr})
@@ -105,7 +107,7 @@ class Utils:
         data_key = deviceInform['deviceId'] + '_' + 'png'
         png_bits = StaticData.camera_buff
 
-        filepath = os.path.join(Utils.get_proj_path(), 'static/datas/vision', data_key)
+        filepath = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'vision', data_key)
         fps = 1000 / params['slot']
         size = (params['width'], params['high'])
         video = cv2.VideoWriter(filepath + '-' + Utils.get_timestamp_in_name() + '.mp4', cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), fps, size)

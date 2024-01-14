@@ -1,11 +1,22 @@
-import os
+## 版本说明
+# 本版本为2024.1.14版本，与main_v2.py共同使用
+# 较之初始版本改动三处，其中第一处是新加的，后两处可能之前已改动过
+# 1.本版本较之前版本添加对于静态环境和动态环境的判别，可以区分环境中有无人
+# 2.本版本修复可能之前还未修复的、代码移植中幅值减半的问题，使得代码与matlab代码处理完全一致
+# 3.本版本修复之前呼吸率选取范围的问题，原代码中为8：17，现改为8：28
+
+## 潜在问题说明
+# 在转换过程中发现，matlab和python中对于NAN的出现情况和处理似乎是存在差异的，在结果上（PAR）导致了一定差异的出现
+# 对于没有呼吸的情况，暂时根据两个数据设计为阈值以下和NAN，具体合理与否，有待进一步验证
+
+## 其它说明
+# 关于PAR值得输出预留了函数接口，输出语句也选择保留在breathe（）函数中（目前已注释）
+# 在PAR值为NAN时，无绘图结果
+
 import scipy.signal as signal
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io as sio
-import time
-
-from backend.utils.utils import Utils
 
 
 # 绘图函数
@@ -74,7 +85,11 @@ def breathe(csi):
     csi_value = csi_diff[:, 0, :]  # Selecting the ratio between antenna 3 and 2
 
     # Define the SimParam and FigureParam
-    SimParam = {'StepSize': 1, 'PhaseDiffLabel': 2, 'SampleShifted': csi_diff.shape[0]}
+    SimParam = {
+        'StepSize': 1,  # Step size in degrees
+        'PhaseDiffLabel': 2
+    }
+    SimParam['SampleShifted'] = csi_diff.shape[0]
 
     FigureNum = 180 // SimParam['StepSize']
     theta_prime_var = np.zeros((csi_diff.shape[0], FigureNum, csi_diff.shape[2]))
@@ -86,11 +101,10 @@ def breathe(csi):
 
     # Select a suitable candidate via maximum periodicity
     theta_prime_var1 = theta_prime_var - np.mean(theta_prime_var, axis=0)  # Remove DC component
-
     pro_fft = np.fft.fft(theta_prime_var1, 8192, axis=0)  # Compute FFT along the first axis
     abs_fft = np.abs(pro_fft)
 
-    bnr = (np.sum(abs_fft[10:30, :, :], axis=0) / np.sum(abs_fft, axis=0))
+    bnr = (np.sum(abs_fft[8:28, :, :], axis=0) / np.sum(abs_fft, axis=0))
     bnr_value_index = np.argmax(bnr, axis=0)
     bnr_value = np.max(bnr, axis=0)
 
@@ -115,7 +129,7 @@ def breathe(csi):
         '''
         # 很奇怪对于数据为何会出现一行可能是因为axis=0有无导致的结果与matlab中得到的不同，而axis=0按道理未sum函数默认值，理论上不应该出现问题
         # 故在此先依据此特化处理，以保持一致（具体为999行，即索引行号998）
-        if k_index != 998:
+        if (k_index != 998):
             r_i[k_index, :] = np.sum((oz_prime_var[k_index + 1:auto_shifted, :] - mean_oz_prime_var) * (oz_prime_var[0:(auto_shifted - k_index-1), :] - mean_oz_prime_var), axis=0) / np.sum((oz_prime_var - mean_oz_prime_var) ** 2, axis=0)
         else:
             r_i[k_index, :] = np.sum((oz_prime_var[k_index + 1:auto_shifted, :] - mean_oz_prime_var) * (oz_prime_var[0:(auto_shifted - k_index-1), :] - mean_oz_prime_var)) / np.sum((oz_prime_var - mean_oz_prime_var) ** 2, axis=0)
@@ -124,6 +138,14 @@ def breathe(csi):
     bnr_max_index = np.argmax(bnr_value)
     bnr_max = np.max(bnr_value)
     oz_prime_var[:, bnr_max_index] = hampel(oz_prime_var[:, bnr_max_index])
+
+    # PAR值检测，判断环境中有无人呼吸
+    PAR_value = np.max(np.abs(abs_fft[8:28, bnr_value_index[bnr_max_index], bnr_max_index])) / np.mean(np.abs(abs_fft[:, bnr_value_index[bnr_max_index], bnr_max_index]))
+    # print("The value of PAR is:", PAR_value)
+    # if PAR_value < 10 or np.isnan(PAR_value):
+    #     print("-----------当前为静态环境------------")
+    # else:
+    #     print("----------当前环境有人呼吸----------")
 
     # Calculate the sum of all subcarriers instead
     candidate_index = np.where(bnr_value > 0.8 * bnr_max)[0]
@@ -135,9 +157,14 @@ def breathe(csi):
     r_msc = hampel(r_msc)
     # Filter the interference of breath
     # 加载参数
-    mat_data = sio.loadmat(os.path.join(Utils.get_proj_path(), 'backend', 'resources', 'filter_config.mat'))
+    mat_data = sio.loadmat('filter_config.mat')
     filter_config = np.squeeze(mat_data['b'])
-    filter_config = filter_config / 2
+
+    '''
+    # 本行代码使最终波形图的幅值减半,yumatlab代码处理结果存在差异,故将其注释
+    # filter_config = filter_config /2
+    '''
+
     rawbreath = oz_prime_var[:, bnr_max_index]
     filtbreath = signal.lfilter(filter_config, 1, np.concatenate((rawbreath, np.zeros(8000))))
 
@@ -150,4 +177,4 @@ def breathe(csi):
     respiration_rate = (fft_max_index + 1) * 100 * 60 / 8192  # 考虑到python与matlab在索引起点上的差别，理论上应该是合理的
     # print('人的呼吸速率为', respiration_rate, 'bpm')
 
-    return respiration_rate, auto_shifted, filtbreath
+    return respiration_rate, auto_shifted, filtbreath, PAR_value

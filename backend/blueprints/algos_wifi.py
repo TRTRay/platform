@@ -54,7 +54,8 @@ def detect_breath_realtime():
         'runtime_data_csi': [],
         'runtime_data_plcr': [],
         'filtbreath': [],
-        'respiration_rate': 0
+        'respiration_rate': 0,
+        'PAR_value': []
     }
     if len(StaticData.csi_for_breath[data_key]) < StaticData.win_len_for_breath:
         return req_success('SUCCESS', inform)
@@ -73,17 +74,15 @@ def detect_breath_realtime():
     #     return req_success('SUCCESS', inform)
 
     # 呼吸检测主体
-    respiration_rate, auto_shifted, filtbreath = breathe(csi)
+    respiration_rate, auto_shifted, filtbreath, PAR_value = breathe(csi)
     result = filtbreath.tolist()[2530 - 1: 2530 + auto_shifted]
     inform = {
         'runtime_data_csi': csi_view,
         'runtime_data_plcr': runtime_list_plcr,
         'filtbreath': result[-StaticData.step_len_for_breath:],
-        'respiration_rate': respiration_rate
+        'respiration_rate': respiration_rate,
+        'PAR_value': PAR_value
     }
-    # save_path = os.path.join(Utils.get_proj_path(), 'static', 'results', 'wifi', 'real_test')
-    # plot_and_save_pic("结果图", filtbreath, 2530 - 1, 2530 + auto_shifted, 'Breath',
-    #                   'Breath_Wave(Filtered Respiration Waveform)', 'Time', 'Amplitude', save_path)
     return req_success('SUCCESS', inform)
 
 
