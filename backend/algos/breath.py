@@ -12,11 +12,13 @@
 ## 其它说明
 # 关于PAR值得输出预留了函数接口，输出语句也选择保留在breathe（）函数中（目前已注释）
 # 在PAR值为NAN时，无绘图结果
-
+import os, time
 import scipy.signal as signal
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io as sio
+
+from backend.utils.utils import Utils
 
 
 # 绘图函数
@@ -157,7 +159,7 @@ def breathe(csi):
     r_msc = hampel(r_msc)
     # Filter the interference of breath
     # 加载参数
-    mat_data = sio.loadmat('filter_config.mat')
+    mat_data = sio.loadmat(os.path.join(Utils.get_proj_path(), 'backend', 'resources', 'filter_config.mat'))
     filter_config = np.squeeze(mat_data['b'])
 
     '''
