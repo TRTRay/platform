@@ -52,9 +52,10 @@ def download_data():
 @temp_bp.route('/api/temp/mmv/showdata', methods=['GET'])
 def test_mmv():
     req_params = json.loads(request.data)
-    deviceId = req_params['deviceId']
+    [result, index] = Utils.find_device(req_params["deviceId"])
+    deviceInform = StaticData.device_list[index]
     # 直接取就行了
+    mmv_data = copy.copy(StaticData.mmv_buff)
+    StaticData.mmv_buff.clear()
 
-    MqttServer.publish('/broker/MMV/MMV-001/start', '')
-    MqttServer.publish('/broker/MMV/MMV-001/showdata/mmv', '')
-    return req_success('SUCCESS', '')
+    return req_success('SUCCESS', mmv_data)

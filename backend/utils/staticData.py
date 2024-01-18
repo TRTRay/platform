@@ -1,11 +1,14 @@
 class StaticData:
     device_list = []
     data_slice = {}
+
     audio_buff = {}
     csi_buff = {}
     plcr_buff = {}
     camera_buff = []
     robot_buff = []
+    mmv_buff = []
+
     begin_index = {}
 
     csi_for_breath = {}

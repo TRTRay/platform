@@ -112,10 +112,14 @@ def res_showdata(client, userdata, msg):
             # cv2.imshow(msg.topic, )
         elif devType == "robot":
             StaticData.robot_buff.append(data)
+    elif data_type == 'mmv':
+        mmv_data = json.loads(msg.payload.decode('utf-8'))
+        StaticData.mmv_buff.append(mmv_data)
 
     # 添加数据
     # 对camera不适用，所以不要使用camera的data_slice
     # 对robot返回的png_map也不适用
+    # 对mmv也不适用
     StaticData.data_slice[data_key].extend(data.tolist())
 
 
@@ -168,7 +172,8 @@ res_dict = {
     'csi': res_showdata,
     'plcr': res_showdata,
     'wav': res_showdata,
-    'png': res_showdata
+    'png': res_showdata,
+    'mmv': res_showdata
 }
 
 

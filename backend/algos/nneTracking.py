@@ -17,9 +17,23 @@ def make_input(plcr_files, init_pos):
     return matrix
 
 
-# 绘图代码未封装，也是调试用
 def plot_and_save(data):
-    pass
+    plt.xlim((-1, 5))
+    plt.ylim((-1, 5))
+    # 设置坐标轴名称
+
+    plt.xlabel('X(m)')
+    plt.ylabel('Y(m)')
+    # 设置坐标轴刻度
+    my_x_ticks = np.arange(-1, 5, 1)
+    my_y_ticks = np.arange(-1, 5, 1)
+    plt.xticks(my_x_ticks)
+    plt.yticks(my_y_ticks)
+
+    x_loc = data[:, 0]
+    y_loc = data[:, 1]
+    plt.plot(x_loc, y_loc)
+    plt.show()
 
 
 def nne(input_tensor):
@@ -35,23 +49,5 @@ def nne(input_tensor):
     input_tensor = input_tensor.to(device)
     output_tensor = model(input_tensor)  # 使用加载的模型进行前向计算
     output_tensor = output_tensor.detach().numpy()
-
-    # 调试用代码
-    # plt.xlim((-1, 5))
-    # plt.ylim((-1, 5))
-    # # 设置坐标轴名称
-    #
-    # plt.xlabel('X(m)')
-    # plt.ylabel('Y(m)')
-    # # 设置坐标轴刻度
-    # my_x_ticks = np.arange(-1, 5, 1)
-    # my_y_ticks = np.arange(-1, 5, 1)
-    # plt.xticks(my_x_ticks)
-    # plt.yticks(my_y_ticks)
-    #
-    # x_loc = output_tensor[:, 0]
-    # y_loc = output_tensor[:, 1]
-    # plt.plot(x_loc, y_loc)
-    # plt.show()
 
     return output_tensor
