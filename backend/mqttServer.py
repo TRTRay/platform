@@ -29,6 +29,7 @@ class MqttServer:
     def __on_message(client, userdata, msg):
         # 接收到消息后根据主题类型进行分类处理
         mlog.trace("Received message, topic:" + msg.topic)
+        # print("Received message, topic:" + msg.topic)
         res_case(client, userdata, msg)
 
     @staticmethod

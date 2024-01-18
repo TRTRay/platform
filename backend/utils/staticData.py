@@ -43,6 +43,10 @@ class StaticData:
         elif deviceInform['devType'] == 'Camera':
             data_key = deviceInform['deviceId'] + '_' + 'png'
             data_slice[data_key] = []
+        elif deviceInform['devType'] == 'MMV':
+            # 实际上用不上，防止报错，先写在这
+            data_key = deviceInform['deviceId'] + '_' + 'mmv'
+            data_slice[data_key] = []
 
     @staticmethod
     def update_index(deviceInform, index):
