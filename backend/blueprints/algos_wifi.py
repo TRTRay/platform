@@ -6,6 +6,7 @@ from flask import Blueprint, request
 import scipy.io as sio
 
 from backend.algos.breath import breathe, plot_and_save_pic
+from backend.algos.nneTracking import make_input, nne
 from backend.algos.classify import classify
 from backend.utils.staticData import StaticData
 from backend.utils.utils import Utils
@@ -84,6 +85,22 @@ def detect_breath_realtime():
         'PAR_value': PAR_value
     }
     return req_success('SUCCESS', inform)
+
+
+@algos_wifi_bp.route('/api/algos/wifi/NNE-Tracking', methods=['GET'])
+def nne_tracking():
+    req_params = json.loads(request.data)
+    files = req_params['files']
+    if len(files) < 2:
+        return req_failed('Lack of Input!', '')
+    for index in range(0, len(files)):
+        filename = files[index]
+        files[index] = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi', filename)
+    init_pos = req_params['position']
+
+    data_input = make_input(files, init_pos)
+    result = nne(data_input)
+    return req_success('SUCCESS', result.tolist())
 
 
 @algos_wifi_bp.route('/api/algos/wifi/feature', methods=['GET'])

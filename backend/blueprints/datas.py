@@ -46,13 +46,7 @@ def show_data():
     deviceInform = StaticData.device_list[index]
 
     # 保留topic
-    pub_topic = (
-        "/broker/"
-        + deviceInform["devType"]
-        + "/"
-        + deviceInform["deviceId"]
-        + "/showdata"
-    )
+    pub_topic = ("/broker/" + deviceInform["devType"] + "/" + deviceInform["deviceId"] + "/showdata")
     if deviceInform["devType"] == "Speaker":
         # 在数据缓存中的检索关键字
         data_key = deviceInform["deviceId"] + "_" + "wav"
@@ -115,7 +109,7 @@ def stop_sample():
         {
             "timestamp": Utils.get_timestamp(),
             "message": "Broker request for stop",
-            "data": [],
+            "data": []
         }
     )
     MqttServer.publish(pub_topic, load)
