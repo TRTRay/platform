@@ -154,3 +154,15 @@ def download_data():
             download_name="csi_and_plcr.zip",
             mimetype="application/zip",
         )
+
+
+@datas_bp.route('/api/datas/wifi/datalist', methods=['GET'])
+def wifi_datalist():
+    dir_path = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi')
+    return req_success('SUCCESS', Utils.filelist_in_dir(dir_path))
+
+
+@datas_bp.route('/api/datas/speaker/datalist', methods=['GET'])
+def speaker_datalist():
+    dir_path = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'acoustic')
+    return req_success('SUCCESS', Utils.filelist_in_dir(dir_path))
