@@ -25,9 +25,7 @@ def start_sample():
 
     # 每次调用清空缓存
     StaticData.empty_data_queue(deviceInform)
-    pub_topic = (
-        "/broker/" + deviceInform["devType"] + "/" + deviceInform["deviceId"] + "/start"
-    )
+    pub_topic = ("/broker/" + deviceInform["devType"] + "/" + deviceInform["deviceId"] + "/start")
     load = json.dumps(
         {
             "timestamp": Utils.get_timestamp(),
@@ -35,7 +33,13 @@ def start_sample():
             "data": [],
         }
     )
-    MqttServer.publish(pub_topic, load)
+    if deviceInform['devType'] == 'Phone':
+        StaticData.airmouse_socket.start()
+        StaticData.airmouse_socket.listen(deviceInform['deviceId'])
+        MqttServer.publish(pub_topic, load)
+        # start data manager process
+        StaticData.AIRMOUSELIST[deviceInform['deviceId']]['process'].start()
+    # MqttServer.publish(pub_topic, load)
     return req_success("SUCCESS", "")
 
 
@@ -92,6 +96,15 @@ def show_data():
             "runtime_data_plcr": runtime_list_plcr,
         }
         return req_success("SUCCESS", inform)
+    elif deviceInform['devType'] == 'Phone':
+        data = []
+        data = list(StaticData.AIRMOUSELIST[deviceInform['deviceId']]['motiondata'])
+        StaticData.AIRMOUSELIST[deviceInform['deviceId']]['motiondata'][:] = []
+        inform = {
+            'runtime_data': data
+        }
+        print(inform)
+        return req_success('SUCCESS', inform)
 
 
 @datas_bp.route("/api/datas/stop", methods=["GET", "POST"])
@@ -117,6 +130,9 @@ def stop_sample():
     if deviceInform["devType"] == "Speaker":
         time.sleep(0.1)
         Utils.save_data_as_audio(deviceInform)
+    elif deviceInform['devType'] == 'Phone':
+        StaticData.AIRMOUSELIST[deviceInform['deviceId']]['process'].terminate()
+        StaticData.AIRMOUSELIST[deviceInform['deviceId']]['process'].join()
     return req_success("SUCCESS", "")
 
 
