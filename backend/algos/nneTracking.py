@@ -50,4 +50,6 @@ def nne(input_tensor):
     output_tensor = model(input_tensor)  # 使用加载的模型进行前向计算
     output_tensor = output_tensor.detach().numpy()
 
+    # plot_and_save(output_tensor)
+
     return output_tensor

@@ -38,7 +38,7 @@ def get_filelist():
     return req_success('SUCCESS', Utils.filelist_in_dir(dir_path))
 
 
-@temp_bp.route('/api/temp/cv/download', methods=['GET'])
+@temp_bp.route('/api/temp/cv/download', methods=['GET', 'POST'])
 def download_data():
     # 不带路径的文件名
     req_params = json.loads(request.data)
@@ -49,7 +49,7 @@ def download_data():
     pass
 
 
-@temp_bp.route('/api/temp/mmv/showdata', methods=['GET'])
+@temp_bp.route('/api/temp/mmv/showdata', methods=['GET', 'POST'])
 def test_mmv():
     req_params = json.loads(request.data)
     [result, index] = Utils.find_device(req_params["deviceId"])

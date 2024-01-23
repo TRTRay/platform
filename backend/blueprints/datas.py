@@ -36,10 +36,10 @@ def start_sample():
     if deviceInform['devType'] == 'Phone':
         StaticData.airmouse_socket.start()
         StaticData.airmouse_socket.listen(deviceInform['deviceId'])
-        MqttServer.publish(pub_topic, load)
+        # MqttServer.publish(pub_topic, load)
         # start data manager process
         StaticData.AIRMOUSELIST[deviceInform['deviceId']]['process'].start()
-    # MqttServer.publish(pub_topic, load)
+    MqttServer.publish(pub_topic, load)
     return req_success("SUCCESS", "")
 
 

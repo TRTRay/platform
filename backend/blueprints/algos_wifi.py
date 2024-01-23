@@ -15,13 +15,6 @@ from backend.utils.jsonResult import *
 algos_wifi_bp = Blueprint('algos_wifi', __name__)
 
 
-@algos_wifi_bp.route('/api/algos/wifi/datalist', methods=['GET'])
-def get_filelist():
-    # wifi datas
-    dir_path = os.path.join(Utils.get_proj_path(), 'static', 'datas', 'wifi')
-    return req_success('SUCCESS', Utils.filelist_in_dir(dir_path))
-
-
 @algos_wifi_bp.route('/api/algos/wifi/breath', methods=['GET', 'POST'])
 def detect_breath():
     req_params = json.loads(request.data)
@@ -87,7 +80,7 @@ def detect_breath_realtime():
     return req_success('SUCCESS', inform)
 
 
-@algos_wifi_bp.route('/api/algos/wifi/NNE-Tracking', methods=['GET'])
+@algos_wifi_bp.route('/api/algos/wifi/NNE-Tracking', methods=['GET', 'POST'])
 def nne_tracking():
     req_params = json.loads(request.data)
     files = req_params['files']
