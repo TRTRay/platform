@@ -27,6 +27,7 @@ class StaticData:
     camera_buff = []
     robot_buff = []
     mmv_buff = []
+    rfid_buff = []
 
     AIRMOUSELIST = {}
     airmouse_socket = AirMouseSocket('AirMouse', message_handler)
@@ -87,6 +88,10 @@ class StaticData:
                 'audiodata': audio_data,
                 'motiondata': motion_data
             }
+        elif deviceInform['devType'] == 'RFID':
+            # 估计也用不上，防止报错，先写在这
+            data_key = deviceInform['deviceId'] + '_' + 'rfid'
+            data_slice[data_key] = []
 
     @staticmethod
     def update_index(deviceInform, index):

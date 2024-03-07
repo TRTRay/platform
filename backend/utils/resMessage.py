@@ -115,6 +115,9 @@ def res_showdata(client, userdata, msg):
     elif data_type == 'mmv':
         mmv_data = json.loads(msg.payload.decode('utf-8'))
         StaticData.mmv_buff.append(mmv_data)
+    elif data_type == 'rfid':
+        rfid_data = json.loads(msg.payload.decode('utf-8'))
+        StaticData.rfid_buff.extend(rfid_data)
 
     # 添加数据
     # 对camera不适用，所以不要使用camera的data_slice
@@ -173,7 +176,8 @@ res_dict = {
     'plcr': res_showdata,
     'wav': res_showdata,
     'png': res_showdata,
-    'mmv': res_showdata
+    'mmv': res_showdata,
+    'rfid': res_showdata
 }
 
 
